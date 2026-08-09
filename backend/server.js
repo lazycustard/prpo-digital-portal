@@ -417,4 +417,5 @@ app.get('/api/governance/dashboard', authenticate, authorize('governance:view'),
 
 // Serve the existing static frontend (pr_portal.html etc.) from the project root.
 app.use(express.static(path.join(__dirname, '..')));
+app.get('/', (req, res) => res.redirect('/pr_portal.html'));
 app.listen(process.env.PORT || 3001, () => console.log(`Procurement backend (PostgreSQL) running at http://localhost:${process.env.PORT || 3001}`));
