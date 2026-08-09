@@ -1502,7 +1502,8 @@ function monthSpan(start,end){
 function slug3(text){return String(text||'GEN').replace(/[^A-Za-z0-9]/g,'').substring(0,3).toUpperCase().padEnd(3,'X')}
 
 // ── LOGIN ───────────────────────────────────────────────────
-const API='http://localhost:3001/api';
+// Same-origin API — works both on localhost and on the deployed URL.
+const API=window.location.origin+'/api';
 let approvedPRs=[];
 function showAppMessage(message, type='error'){
   const el=document.getElementById('appMessage');
