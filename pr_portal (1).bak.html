@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Acme Corp — Procurement Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1A2744;--accent:#0055CC;--accent-h:#004BB5;--accent-lt:#E8F0FD;
+  --green:#1A6B3C;--green-lt:#EAF4EE;--red:#B91C1C;--red-lt:#FEF2F2;
+  --amber:#92400E;--amber-lt:#FFFBEB;
+  --text:#1C1C1E;--text2:#4B5563;--text3:#9CA3AF;
+  --border:#D1D5DB;--border-dk:#9CA3AF;
+  --bg:#F3F4F6;--surf:#FFFFFF;--surf2:#F9FAFB;--r:4px;
+}
+body{font-family:'Roboto',Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5}
+
+/* NAV */
+.topnav{background:var(--navy);height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:200}
+.nav-left{display:flex;align-items:center;gap:18px}
+.nav-logo{display:flex;align-items:center;gap:8px;color:#fff;font-weight:700;font-size:15px}
+.nav-logo span{background:#fff;color:var(--navy);font-size:11px;font-weight:700;padding:2px 6px;border-radius:3px;letter-spacing:.05em}
+.nav-sep{width:1px;height:22px;background:rgba(255,255,255,.2)}
+.nav-title{color:rgba(255,255,255,.65);font-size:13px}
+.nav-right{display:flex;align-items:center;gap:16px;color:rgba(255,255,255,.7);font-size:13px}
+.nav-user{display:flex;align-items:center;gap:7px;cursor:pointer;color:rgba(255,255,255,.85)}
+.nav-avatar{width:28px;height:28px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+
+/* BREADCRUMB */
+.breadcrumb{background:var(--surf);border-bottom:1px solid var(--border);padding:8px 24px;font-size:12px;color:var(--text3);display:flex;align-items:center;gap:6px}
+.breadcrumb a{color:var(--accent);text-decoration:none}
+.breadcrumb a:hover{text-decoration:underline}
+
+/* PAGE */
+.page{max-width:980px;margin:0 auto;padding:24px 20px 60px}
+.page-title-row{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px}
+.page-title-row h1{font-size:18px;font-weight:700}
+.page-title-row p{font-size:12px;color:var(--text3);margin-top:2px}
+.draft-badge{background:var(--amber-lt);color:var(--amber);border:1px solid #D97706;font-size:11px;font-weight:500;padding:3px 10px;border-radius:3px;margin-top:4px}
+
+/* HOME DASHBOARD */
+.home-wrap{max-width:700px;margin:40px auto 0}
+.home-wrap h2{font-size:16px;font-weight:700;margin-bottom:6px}
+.home-wrap p{font-size:13px;color:var(--text2);margin-bottom:24px}
+.module-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.module-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:24px 20px;cursor:pointer;transition:border-color .15s,box-shadow .15s;position:relative;overflow:hidden}
+.module-card:hover{border-color:var(--accent);box-shadow:0 2px 8px rgba(0,85,204,.1)}
+.module-card h3{font-size:15px;font-weight:700;margin-bottom:6px;color:var(--text)}
+.module-card p{font-size:12px;color:var(--text2);line-height:1.5}
+.module-card .mod-tag{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 8px;border-radius:2px;margin-bottom:10px}
+.module-card .mod-tag.pr{background:var(--accent-lt);color:var(--accent)}
+.module-card .mod-tag.po{background:var(--green-lt);color:var(--green)}
+.module-card .mod-arrow{position:absolute;right:16px;bottom:16px;font-size:18px;color:var(--border-dk)}
+.module-card:hover .mod-arrow{color:var(--accent)}
+.module-card ul{margin-top:10px;padding-left:14px;font-size:12px;color:var(--text2);line-height:1.8}
+
+/* STEPPER */
+.stepper-bar{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);margin-bottom:16px;overflow:hidden}
+.stepper-inner{display:flex;border-bottom:2px solid var(--border)}
+.step-tab{flex:1;padding:10px 4px 9px;text-align:center;font-size:11px;color:var(--text3);border-right:1px solid var(--border);cursor:pointer;transition:background .12s;user-select:none}
+.step-tab:last-child{border-right:none}
+.step-tab:hover{background:var(--bg)}
+.step-tab .snum{display:block;font-size:10px;font-weight:700;color:var(--text3);margin-bottom:2px;font-family:'Roboto Mono',monospace}
+.step-tab.active{background:var(--accent-lt);color:var(--accent);border-bottom:2px solid var(--accent);margin-bottom:-2px}
+.step-tab.active .snum{color:var(--accent)}
+.step-tab.done{color:var(--text2);background:var(--surf2)}
+.step-tab.done .snum{color:var(--green)}
+.step-tab.done::after{content:' ✓';color:var(--green);font-size:10px}
+.progress-strip{height:3px;background:var(--border)}
+.progress-fill{height:100%;background:var(--accent);transition:width .3s}
+
+/* CARD */
+.card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r)}
+.card-head{padding:14px 20px 13px;border-bottom:1px solid var(--border);background:var(--surf2);display:flex;align-items:center;justify-content:space-between}
+.card-head-left h2{font-size:14px;font-weight:700}
+.card-head-left p{font-size:12px;color:var(--text3);margin-top:1px}
+.step-indicator{font-size:11px;color:var(--text3);font-family:'Roboto Mono',monospace;background:var(--bg);border:1px solid var(--border);padding:3px 9px;border-radius:3px}
+.card-body{padding:20px}
+.card-foot{border-top:1px solid var(--border);padding:12px 20px;background:var(--surf2);display:flex;align-items:center;justify-content:space-between}
+.foot-left{font-size:11px;color:var(--text3)}
+
+/* FORM */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.form-row.cols-3{grid-template-columns:1fr 1fr 1fr}
+.form-row.cols-1{grid-template-columns:1fr}
+.form-row:last-child{margin-bottom:0}
+.field{display:flex;flex-direction:column;gap:4px}
+.field.span2{grid-column:span 2}
+label{font-size:12px;font-weight:500;color:var(--text2)}
+.req{color:var(--red);margin-left:1px}
+.opt{color:var(--text3);font-weight:400;font-size:11px}
+input[type=text],input[type=number],input[type=date],input[type=password],select,textarea{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:var(--r);font-size:13px;color:var(--text);background:var(--surf);font-family:'Roboto',Arial,sans-serif;transition:border-color .1s,box-shadow .1s;appearance:none;-webkit-appearance:none}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba(0,85,204,.12)}
+input[readonly],input:disabled{background:var(--bg);color:var(--text3);cursor:default}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239CA3AF' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;padding-right:28px}
+textarea{resize:vertical;min-height:80px;line-height:1.5}
+.field-hint{font-size:11px;color:var(--text3);margin-top:2px}
+.field-note{font-size:11px;color:var(--text3);background:var(--bg);border:1px solid var(--border);padding:5px 9px;border-radius:3px;margin-top:2px}
+.computed-field input{background:#FAFAFA;font-weight:500;font-family:'Roboto Mono',monospace;font-size:13px}
+.computed-label{display:flex;align-items:center;gap:6px}
+.ctag{font-size:10px;font-weight:700;color:var(--green);background:var(--green-lt);border:1px solid #6EE7A3;padding:1px 6px;border-radius:2px;text-transform:uppercase;letter-spacing:.04em}
+.sub-head{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);padding:14px 0 10px;border-bottom:1px solid var(--border);margin-bottom:16px}
+
+/* NOTICES */
+.notice{border-left:3px solid var(--border-dk);padding:9px 12px;font-size:12px;color:var(--text2);background:var(--surf2);margin:12px 0}
+.notice.error{border-color:var(--red);background:var(--red-lt);color:#7F1D1D}
+.notice.ok{border-color:var(--green);background:var(--green-lt);color:#14532D}
+.notice.info{border-color:var(--accent);background:var(--accent-lt);color:#1e3a6e}
+.notice.warn{border-color:#D97706;background:var(--amber-lt);color:var(--amber)}
+.notice strong{font-weight:700;display:block;margin-bottom:2px}
+
+/* BUDGET TABLE */
+.budget-table{width:100%;border-collapse:collapse;font-size:13px;margin:12px 0}
+.budget-table td{padding:9px 12px;border:1px solid var(--border)}
+.budget-table td:first-child{background:var(--surf2);color:var(--text2);font-weight:500;width:45%}
+.budget-table td:last-child{font-family:'Roboto Mono',monospace;font-weight:500}
+.budget-table tr.avail td:last-child{color:var(--green)}
+.budget-table tr.used td:last-child{color:var(--amber)}
+.budget-bar-wrap{height:6px;background:var(--border);border-radius:0;margin:12px 0 4px;overflow:hidden}
+.budget-bar-fill{height:100%;background:var(--accent)}
+.budget-bar-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--text3)}
+
+/* MILESTONE TABLE */
+.ms-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:12px}
+.ms-table th{background:var(--surf2);border:1px solid var(--border);padding:7px 10px;font-weight:700;color:var(--text2);text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+.ms-table td{border:1px solid var(--border);padding:7px 10px;color:var(--text)}
+.ms-table td input{padding:4px 6px;font-size:12px;border:1px solid var(--border);border-radius:3px;width:100%}
+.ms-table tr:nth-child(even) td{background:var(--surf2)}
+.ms-del{background:none;border:none;color:var(--red);cursor:pointer;font-size:14px;padding:2px 6px}
+.ms-del:hover{color:#7F1D1D}
+.ms-total{font-size:12px;color:var(--text2);margin-top:6px;font-family:'Roboto Mono',monospace}
+.ms-total.ok{color:var(--green)}
+.ms-total.err{color:var(--red)}
+
+/* NEGOTIATION BRANCH */
+.branch-wrap{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.branch-box{border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.branch-box-head{background:var(--surf2);border-bottom:1px solid var(--border);padding:9px 14px;font-size:12px;font-weight:700;color:var(--text2)}
+.branch-box-body{padding:14px}
+
+/* UPLOAD */
+.upload-box{border:1px dashed var(--border-dk);background:var(--surf2);padding:24px 20px;text-align:center;cursor:pointer;position:relative;border-radius:var(--r);transition:border-color .15s,background .15s}
+.upload-box:hover{border-color:var(--accent);background:var(--accent-lt)}
+.upload-box input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;border:none;padding:0}
+.upload-box p{font-size:13px;color:var(--text2);margin-bottom:4px}
+.upload-box .sub{font-size:11px;color:var(--text3)}
+.file-chip{display:inline-flex;align-items:center;gap:6px;background:var(--surf2);border:1px solid var(--border);border-radius:3px;padding:4px 10px;font-size:12px;color:var(--text2);margin-top:8px}
+
+/* REVIEW */
+.review-block{border:1px solid var(--border);border-radius:var(--r);margin-bottom:12px;overflow:hidden}
+.review-block-head{background:var(--surf2);border-bottom:1px solid var(--border);padding:8px 14px;display:flex;align-items:center;justify-content:space-between}
+.review-block-head h4{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em}
+.review-edit{font-size:11px;color:var(--accent);cursor:pointer;background:none;border:1px solid var(--accent);padding:2px 8px;border-radius:3px;font-family:inherit;transition:background .1s}
+.review-edit:hover{background:var(--accent-lt)}
+.review-dl{width:100%;padding:10px 14px;display:grid;grid-template-columns:38% 62%;font-size:12px}
+.review-dl dt{color:var(--text3);padding:4px 0}
+.review-dl dd{color:var(--text);font-weight:500;padding:4px 0}
+
+/* SUCCESS */
+.success-wrap{padding:40px 24px;text-align:center}
+.success-wrap h2{font-size:20px;font-weight:700;margin-bottom:6px}
+.success-wrap p{font-size:13px;color:var(--text2)}
+.po-num-box{display:inline-block;border:1px solid var(--border-dk);background:var(--surf2);font-family:'Roboto Mono',monospace;font-size:16px;font-weight:700;color:var(--text);padding:10px 24px;border-radius:var(--r);margin:16px 0;letter-spacing:.08em}
+.status-tag{display:inline-block;background:var(--amber-lt);color:var(--amber);border:1px solid #D97706;font-size:11px;font-weight:700;padding:3px 10px;border-radius:3px;margin-bottom:20px;letter-spacing:.04em}
+.sap-tag{display:inline-block;background:#F0F4FF;color:#1A3A8F;border:1px solid #93A8E0;font-size:11px;font-weight:700;padding:3px 10px;border-radius:3px;margin-left:6px;letter-spacing:.04em}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 18px;font-size:13px;font-weight:500;font-family:'Roboto',Arial,sans-serif;border-radius:var(--r);border:1px solid transparent;cursor:pointer;transition:background .12s,border-color .12s}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-primary:hover{background:var(--accent-h)}
+.btn-primary:disabled{background:var(--border-dk);border-color:var(--border-dk);cursor:not-allowed;opacity:.6}
+.btn-ghost{background:var(--surf);color:var(--text2);border-color:var(--border)}
+.btn-ghost:hover{background:var(--bg);border-color:var(--border-dk)}
+.btn-submit{background:var(--green);color:#fff;border-color:var(--green)}
+.btn-submit:hover{background:#155d34}
+.btn-sm{padding:5px 12px;font-size:12px}
+
+/* LOGIN */
+.login-outer{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg)}
+.login-card{width:100%;max-width:380px;background:var(--surf);border:1px solid var(--border);border-radius:var(--r)}
+.login-head{background:var(--navy);padding:24px 24px 20px;border-radius:var(--r) var(--r) 0 0}
+.login-head h1{font-size:16px;font-weight:700;color:#fff;margin-bottom:2px}
+.login-head p{font-size:12px;color:rgba(255,255,255,.6)}
+.login-body{padding:20px 24px 24px}
+.login-footer{border-top:1px solid var(--border);padding:10px 24px;font-size:11px;color:var(--text3);border-radius:0 0 var(--r) var(--r);background:var(--surf2)}
+.otp-fields{display:flex;gap:7px;align-items:center}
+.otp-fields input{width:40px;text-align:center;font-size:15px;font-weight:700;font-family:'Roboto Mono',monospace;padding:7px 4px}
+.otp-dash{color:var(--border-dk);font-size:16px;margin:0 2px}
+
+/* RADIO TOGGLE */
+.radio-group{display:flex;gap:0;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;width:fit-content}
+.radio-group label{display:flex;align-items:center;gap:6px;padding:6px 14px;font-size:12px;font-weight:500;cursor:pointer;color:var(--text2);background:var(--surf);border-right:1px solid var(--border);transition:background .1s}
+.radio-group label:last-child{border-right:none}
+.radio-group input[type=radio]{display:none}
+.radio-group input[type=radio]:checked+span{color:var(--accent);font-weight:700}
+.radio-group label:has(input:checked){background:var(--accent-lt);color:var(--accent)}
+
+/* PANELS */
+.view{display:none}.view.active{display:block}
+.step-panel{display:none}.step-panel.active{display:block}
+
+@media(max-width:600px){
+  .form-row{grid-template-columns:1fr}
+  .form-row.cols-3{grid-template-columns:1fr 1fr}
+  .card-foot{flex-direction:column;gap:8px;align-items:stretch}
+  .btn{justify-content:center}
+  .step-tab{font-size:10px;padding:8px 2px}
+  .module-grid{grid-template-columns:1fr}
+  .branch-wrap{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══ -->
+<div class="login-outer" id="loginScreen">
+  <div class="login-card">
+    <div class="login-head">
+      <h1>Acme Corp — Procurement Portal</h1>
+      <p>Sign in with your corporate credentials</p>
+    </div>
+    <div class="login-body">
+      <div class="form-row cols-1" style="margin-bottom:12px">
+        <div class="field"><label>Email <span class="req">*</span></label>
+          <input type="text" value="john.doe@acmecorp.in"/></div>
+      </div>
+      <div class="form-row cols-1" style="margin-bottom:12px">
+        <div class="field"><label>Password <span class="req">*</span></label>
+          <input type="password" value="password123"/></div>
+      </div>
+      <div class="field" style="margin-bottom:18px">
+        <label>OTP (from authenticator) <span class="req">*</span></label>
+        <div class="otp-fields" style="margin-top:4px">
+          <input type="text" maxlength="1" value="4"/>
+          <input type="text" maxlength="1" value="7"/>
+          <input type="text" maxlength="1" value="2"/>
+          <span class="otp-dash">–</span>
+          <input type="text" maxlength="1" value="8"/>
+          <input type="text" maxlength="1" value="1"/>
+          <input type="text" maxlength="1" value="9"/>
+        </div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="doLogin()">Sign In</button>
+    </div>
+    <div class="login-footer">Session expires after 30 min &nbsp;&middot;&nbsp; IT Help: ext. 1400</div>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div id="mainApp" style="display:none">
+  <nav class="topnav">
+    <div class="nav-left">
+      <div class="nav-logo"><span>ACME</span> ERP Portal</div>
+      <div class="nav-sep"></div>
+      <div class="nav-title" id="navTitle">Procurement</div>
+    </div>
+    <div class="nav-right">
+      <span>FY&nbsp;2025-26</span>
+      <div class="nav-sep"></div>
+      <div class="nav-user">
+        <div class="nav-avatar">JD</div>John Doe &#9660;
+      </div>
+    </div>
+  </nav>
+  <div class="breadcrumb" id="breadcrumb">
+    <a href="#" onclick="goHome();return false">Home</a> &rsaquo;
+    <a href="#">Procurement</a> &rsaquo;
+    Dashboard
+  </div>
+
+  <!-- ══ HOME ══ -->
+  <div class="view active" id="viewHome">
+    <div class="page">
+      <div class="home-wrap">
+        <h2>Procurement Dashboard</h2>
+        <p>Select the transaction you want to create</p>
+        <div class="module-grid">
+          <div class="module-card" onclick="startPR()">
+            <div class="mod-tag pr">PR</div>
+            <h3>Purchase Request</h3>
+            <p>Raise a new internal purchase request for budget approval before vendor engagement.</p>
+            <ul>
+              <li>Basic Info &amp; Budget</li>
+              <li>PR Amount &amp; Validity</li>
+              <li>Scope of Work Upload</li>
+              <li>Approval Workflow</li>
+            </ul>
+            <span class="mod-arrow">&#8250;</span>
+          </div>
+          <div class="module-card" onclick="startPO()">
+            <div class="mod-tag po">PO</div>
+            <h3>Purchase Order</h3>
+            <p>Create a purchase order against an approved PR. Covers vendor, payment terms, and negotiation.</p>
+            <ul>
+              <li>Vendor Selection</li>
+              <li>Payment &amp; Milestones</li>
+              <li>Negotiation Details</li>
+              <li>SAP Integration</li>
+            </ul>
+            <span class="mod-arrow">&#8250;</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PR FORM ══ -->
+  <div class="view" id="viewPR">
+    <div class="page">
+      <div class="page-title-row">
+        <div><h1>New Purchase Request</h1><p>Complete all sections and submit for approval</p></div>
+        <div class="draft-badge">DRAFT — unsaved</div>
+      </div>
+      <div class="stepper-bar">
+        <div class="stepper-inner" id="pr-stepper">
+          <div class="step-tab active" onclick="prGo(0)"><span class="snum">01</span>Basic Info</div>
+          <div class="step-tab" onclick="prGo(1)"><span class="snum">02</span>Budget</div>
+          <div class="step-tab" onclick="prGo(2)"><span class="snum">03</span>PR Amount</div>
+          <div class="step-tab" onclick="prGo(3)"><span class="snum">04</span>Validity</div>
+          <div class="step-tab" onclick="prGo(4)"><span class="snum">05</span>Additional</div>
+          <div class="step-tab" onclick="prGo(5)"><span class="snum">06</span>Scope of Work</div>
+          <div class="step-tab" onclick="prGo(6)"><span class="snum">07</span>Review</div>
+          <div class="step-tab"><span class="snum">08</span>Done</div>
+        </div>
+        <div class="progress-strip"><div class="progress-fill" id="pr-prog" style="width:12.5%"></div></div>
+      </div>
+
+      <!-- PR Step 1 -->
+      <div class="step-panel active" id="pr-panel-0">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>PR Basic Information</h2><p>Fields marked * are mandatory. Dropdowns populated from master data.</p></div><div class="step-indicator">Step 1 of 7</div></div>
+          <div class="card-body">
+            <div class="form-row">
+              <div class="field"><label>Company <span class="req">*</span></label>
+                <select id="pr_company"><option value="">— Select —</option><option selected>Acme Corp India Pvt. Ltd.</option><option>Acme Corp Global Ltd.</option><option>Acme Manufacturing Ltd.</option></select></div>
+              <div class="field"><label>Financial Year <span class="req">*</span></label>
+                <select id="pr_fy"><option selected>FY 2025-26</option><option>FY 2026-27</option></select></div>
+            </div>
+            <div class="form-row">
+              <div class="field"><label>Cost Type <span class="req">*</span></label>
+                <select id="pr_costtype"><option value="">— Select —</option><option selected>CAPEX</option><option>OPEX</option><option>R&amp;D</option></select></div>
+              <div class="field"><label>Function <span class="req">*</span></label>
+                <select id="pr_function"><option value="">— Select —</option><option selected>Information Technology</option><option>Operations</option><option>Finance</option><option>HR</option><option>Marketing</option></select></div>
+            </div>
+            <div class="form-row">
+              <div class="field"><label>Category <span class="req">*</span></label>
+                <select id="pr_category"><option value="">— Select —</option><option selected>Software Licenses</option><option>Hardware</option><option>Professional Services</option><option>Infrastructure</option></select></div>
+              <div class="field"><label>Line Item <span class="req">*</span></label>
+                <select id="pr_lineitem"><option value="">— Select —</option><option selected>SaaS Subscriptions</option><option>On-Premise Software</option><option>Cloud Services</option><option>Security Tools</option></select></div>
+            </div>
+          </div>
+          <div class="card-foot"><span class="foot-left"><span class="req">*</span> Mandatory</span><button class="btn btn-primary" onclick="prNext()">Next &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- PR Step 2 -->
+      <div class="step-panel" id="pr-panel-1">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Budget Validation</h2><p>System-fetched based on Function / Category / Line Item</p></div><div class="step-indicator">Step 2 of 7</div></div>
+          <div class="card-body">
+            <div class="notice info"><strong>Auto-fetched</strong> Budget for IT &rarr; Software Licenses &rarr; SaaS Subscriptions &mdash; FY 2025-26</div>
+            <table class="budget-table">
+              <tr><td>Allocated Budget</td><td>&#8377; 25,00,000</td></tr>
+              <tr class="used"><td>Utilized Budget</td><td>&#8377; 14,50,000</td></tr>
+              <tr class="avail"><td>Available Budget</td><td>&#8377; 10,50,000</td></tr>
+            </table>
+            <div class="budget-bar-wrap"><div class="budget-bar-fill" style="width:58%"></div></div>
+            <div class="budget-bar-meta"><span>&#8377; 0</span><span>58% utilized</span><span>&#8377; 25,00,000</span></div>
+            <div class="notice ok" style="margin-top:14px"><strong>Within budget.</strong> You may proceed to enter PR amount.</div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="prPrev()">&lsaquo; Back</button><button class="btn btn-primary" onclick="prNext()">Next &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- PR Step 3 -->
+      <div class="step-panel" id="pr-panel-2">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>PR Amount Details</h2><p>PR Value = Quantity &times; Rate (auto-calculated, non-editable)</p></div><div class="step-indicator">Step 3 of 7</div></div>
+          <div class="card-body">
+            <div class="form-row">
+              <div class="field"><label>Quantity <span class="req">*</span></label><input type="number" id="pr_qty" placeholder="e.g. 50" min="1" oninput="calcPR()"/><span class="field-hint">No. of units / licenses</span></div>
+              <div class="field"><label>Rate (&#8377;) <span class="req">*</span></label><input type="number" id="pr_rate" placeholder="e.g. 12000" min="0" oninput="calcPR()"/><span class="field-hint">Per-unit cost in INR</span></div>
+            </div>
+            <div class="sub-head">Computed value</div>
+            <div class="form-row cols-1">
+              <div class="field computed-field"><div class="computed-label"><label>PR Value (&#8377;)</label><span class="ctag">auto</span></div>
+                <input type="text" id="pr_value" readonly placeholder="0.00"/>
+                <span class="field-note">Read-only &mdash; Quantity &times; Rate</span></div>
+            </div>
+            <div id="pr_budgetErr" style="display:none"><div class="notice error"><strong>Budget Exceeded.</strong> Reduce amount or raise a budget revision.</div></div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="prPrev()">&lsaquo; Back</button><button class="btn btn-primary" id="prBtnS3" onclick="prNext()">Next &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- PR Step 4 -->
+      <div class="step-panel" id="pr-panel-3">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Validity Period</h2><p>Delivery date = End Date + 3 months (auto)</p></div><div class="step-indicator">Step 4 of 7</div></div>
+          <div class="card-body">
+            <div class="form-row">
+              <div class="field"><label>Start Date <span class="req">*</span></label><input type="date" id="pr_start" oninput="calcPRDates()"/></div>
+              <div class="field"><label>End Date <span class="req">*</span></label><input type="date" id="pr_end" oninput="calcPRDates()"/></div>
+            </div>
+            <div class="sub-head">Computed value</div>
+            <div class="form-row cols-1">
+              <div class="field computed-field"><div class="computed-label"><label>Delivery Date</label><span class="ctag">auto</span></div>
+                <input type="text" id="pr_delivery" readonly placeholder="End Date + 3 months"/>
+                <span class="field-note">Non-editable &mdash; End Date + 3 months</span></div>
+            </div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="prPrev()">&lsaquo; Back</button><button class="btn btn-primary" onclick="prNext()">Next &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- PR Step 5 -->
+      <div class="step-panel" id="pr-panel-4">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Additional Details</h2><p>Tax, cost centre, and optional remarks</p></div><div class="step-indicator">Step 5 of 7</div></div>
+          <div class="card-body">
+            <div class="form-row">
+              <div class="field"><label>Tax Applicability <span class="req">*</span></label>
+                <select id="pr_tax"><option>GST 18%</option><option>GST 12%</option><option>GST 5%</option><option>Exempt / NIL</option></select></div>
+              <div class="field"><label>Cost Centre <span class="req">*</span></label>
+                <select id="pr_cc"><option value="">— Select —</option><option selected>CC-IT-001 · Bangalore HQ</option><option>CC-IT-002 · Mumbai Office</option><option>CC-IT-003 · Delhi NCR</option><option>CC-CORP-001 · Corporate</option></select></div>
+            </div>
+            <div class="form-row cols-1" style="margin-top:4px">
+              <div class="field"><label>Remarks <span class="opt">(optional)</span></label>
+                <textarea id="pr_remarks" placeholder="Justification or notes for approvers..."></textarea></div>
+            </div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="prPrev()">&lsaquo; Back</button><button class="btn btn-primary" onclick="prNext()">Next &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- PR Step 6 -->
+      <div class="step-panel" id="pr-panel-5">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Scope of Work</h2><p>Upload SoW — summary extracted automatically</p></div><div class="step-indicator">Step 6 of 7</div></div>
+          <div class="card-body">
+            <div class="upload-box">
+              <input type="file" id="pr_sow" accept=".pdf,.doc,.docx" onchange="prHandleFile(event)"/>
+              <p><strong>Click to browse</strong> or drag and drop</p>
+              <p class="sub">PDF, DOC, DOCX &nbsp;&middot;&nbsp; Max size per IT policy</p>
+            </div>
+            <div id="pr_fileOk" style="display:none;margin-top:10px"><div class="notice ok" id="pr_fileOkTxt"></div></div>
+            <div id="pr_aiBox" style="display:none;margin-top:14px">
+              <div style="border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
+                <div style="background:var(--surf2);border-bottom:1px solid var(--border);padding:8px 12px;font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;justify-content:space-between">Document Summary — AI Generated <span style="font-weight:400;color:var(--text3);text-transform:none;letter-spacing:0">Editable before submission</span></div>
+                <textarea id="pr_aiText" rows="4" style="border:none;width:100%;padding:10px 12px;font-size:12.5px;font-family:'Roboto',Arial,sans-serif;color:var(--text);line-height:1.6">This PR covers enterprise SaaS subscription licenses for IT — productivity and security tooling. Scope includes onboarding, SLA terms, and training for a 12-month period. Coverage: Bangalore HQ and Mumbai Office (~50 users). Vendor evaluation complete; legal review pending.</textarea>
+              </div>
+            </div>
+            <div class="notice info" id="pr_skipNote" style="margin-top:14px"><strong>Note:</strong> You may proceed without a SoW if not applicable at this stage.</div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="prPrev()">&lsaquo; Back</button><button class="btn btn-primary" onclick="prBuildReview();prGo(6)">Review &amp; Submit &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- PR Step 7 Review -->
+      <div class="step-panel" id="pr-panel-6">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Review Before Submission</h2><p>Verify all details. Use Edit to return to any section.</p></div><div class="step-indicator">Step 7 of 7</div></div>
+          <div class="card-body" id="pr_reviewBody"></div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="prPrev()">&lsaquo; Back</button><button class="btn btn-submit" onclick="prSubmit()">Submit for Approval</button></div>
+        </div>
+      </div>
+
+      <!-- PR Step 8 Done -->
+      <div class="step-panel" id="pr-panel-7">
+        <div class="card">
+          <div class="success-wrap">
+            <h2>PR Submitted</h2>
+            <p>Saved and sent to the approval workflow.</p>
+            <div class="po-num-box" id="pr_numDisplay">PR/2025-26/000124</div><br>
+            <span class="status-tag">PENDING APPROVAL</span>
+            <div class="review-block" style="text-align:left;max-width:420px;margin:0 auto 20px">
+              <div class="review-block-head"><h4>What happens next</h4></div>
+              <dl class="review-dl">
+                <dt>Approvers notified</dt><dd>Automatically via email &amp; portal</dd>
+                <dt>Status</dt><dd>Pending L1 Approval</dd>
+                <dt>SLA</dt><dd>3 working days</dd>
+                <dt>Track</dt><dd>My PRs &rarr; Open PRs</dd>
+              </dl>
+            </div>
+            <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+              <button class="btn btn-primary" onclick="startPO()">Create PO against this PR</button>
+              <button class="btn btn-ghost" onclick="goHome()">Back to Dashboard</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /viewPR -->
+
+  <!-- ══ PO FORM ══ -->
+  <div class="view" id="viewPO">
+    <div class="page">
+      <div class="page-title-row">
+        <div><h1>New Purchase Order</h1><p>Create a PO against an approved PR</p></div>
+        <div class="draft-badge">DRAFT — unsaved</div>
+      </div>
+      <div class="stepper-bar">
+        <div class="stepper-inner" id="po-stepper">
+          <div class="step-tab active" onclick="poGo(0)"><span class="snum">01</span>Vendor</div>
+          <div class="step-tab" onclick="poGo(1)"><span class="snum">02</span>PO Amount</div>
+          <div class="step-tab" onclick="poGo(2)"><span class="snum">03</span>Payment</div>
+          <div class="step-tab" onclick="poGo(3)"><span class="snum">04</span>Validity</div>
+          <div class="step-tab" onclick="poGo(4)"><span class="snum">05</span>Inco Terms</div>
+          <div class="step-tab" onclick="poGo(5)"><span class="snum">06</span>Negotiation</div>
+          <div class="step-tab" onclick="poGo(6)"><span class="snum">07</span>PO Info</div>
+          <div class="step-tab" onclick="poGo(7)"><span class="snum">08</span>Review</div>
+          <div class="step-tab"><span class="snum">09</span>Done</div>
+        </div>
+        <div class="progress-strip"><div class="progress-fill" id="po-prog" style="width:11%"></div></div>
+      </div>
+
+      <!-- PO Step 1: Vendor -->
+      <div class="step-panel active" id="po-panel-0">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Vendor Selection</h2><p>Select vendor — code, address and tax code are auto-filled from master</p></div><div class="step-indicator">Step 1 of 8</div></div>
+          <div class="card-body">
+            <div class="notice info"><strong>Linked PR:</strong> PR/2025-26/000123 &mdash; SaaS Subscriptions &mdash; &#8377; 6,00,000</div>
+            <div class="form-row">
+              <div class="field"><label>Vendor Name <span class="req">*</span></label>
+                <select id="po_vendor" onchange="fillVendor()">
+                  <option value="">— Select Vendor —</option>
+                  <option value="TCS">TCS Limited</option>
+                  <option value="INF">Infosys Ltd.</option>
+                  <option value="WIP">Wipro Technologies</option>
+                  <option value="SAP">SAP India Pvt. Ltd.</option>
+                  <option value="ORA">Oracle India Pvt. Ltd.</option>
+                </select>
+              </div>
+              <div class="field computed-field"><div class="computed-label"><label>Vendor Code</label><span class="ctag">auto</span></div>
+                <input type="text" id="po_vcode" readonly placeholder="Auto-filled"/></div>
+            </div>
+            <div class="form-row">
+              <div class="field computed-field"><div class="computed-label"><label>Vendor Address</label><span class="ctag">auto</span></div>
+                <input type="text" id="po_vaddr" readonly placeholder="Auto-filled from master"/></div>
+              <div class="field computed-field"><div class="computed-label"><label>Tax Code (GSTIN)</label><span class="ctag">auto</span></div>
+                <input type="text" id="po_vtax" readonly placeholder="Auto-filled"/></div>
+            </div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="goHome()">&lsaquo; Dashboard</button><button class="btn btn-primary" onclick="poNext()">Next &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- PO Step 2: PO Amount -->
+      <div class="step-panel" id="po-panel-1">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>PO Amount Details</h2><p>PO Value must not exceed the approved PR Value</p></div><div class="step-indicator">Step 2 of 8</div></div>
+          <div class="card-body">
+            <div class="notice info"><strong>Approved PR Value:</strong> &#8377; 6,00,000 &mdash; PO Value cannot exceed this amount.</div>
+            <div class="form-row">
+              <div class="field"><label>Quantity <span class="req">*</span></label>
+                <input type="number" id="po_qty" placeholder="e.g. 50" min="1" oninput="calcPO()"/></div>
+              <div class="field"><label>Rate (&#8377;) <span class="req">*</span></label>
+                <input type="number" id="po_rate" placeholder="e.g. 10000" min="0" oninput="calcPO()"/></div>
+            </div>
+            <div class="sub-head">Computed value</div>
+            <div class="form-row cols-1">
+              <div class="field computed-field"><div class="computed-label"><label>PO Value (&#8377;)</label><span class="ctag">auto</span></div>
+                <input type="text" id="po_value" readonly placeholder="0.00"/>
+                <span class="field-note">Quantity &times; Rate &mdash; must be &le; PR Value</span></div>
+            </div>
+            <div id="po_valErr" style="display:none"><div class="notice error"><strong>Exceeds PR Value.</strong> PO Value cannot be more than the approved PR Value of &#8377;&nbsp;6,00,000.</div></div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="poPrev()">&lsaquo; Back</button><button class="btn btn-primary" id="poBtnS2" onclick="poNext()">Next &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- PO Step 3: Payment Terms -->
+      <div class="step-panel" id="po-panel-2">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Payment Terms</h2><p>Select payment structure — milestone or standard</p></div><div class="step-indicator">Step 3 of 8</div></div>
+          <div class="card-body">
+            <div class="form-row cols-1" style="margin-bottom:18px">
+              <div class="field">
+                <label>Payment Type <span class="req">*</span></label>
+                <div class="radio-group" style="margin-top:6px">
+                  <label onclick="togglePayment('std')"><input type="radio" name="paytype" id="pay_std" checked/><span>Standard</span></label>
+                  <label onclick="togglePayment('ms')"><input type="radio" name="paytype" id="pay_ms"/><span>Milestone Based</span></label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Standard payment -->
+            <div id="payStd">
+              <div class="form-row">
+                <div class="field"><label>Payment Schedule <span class="req">*</span></label>
+                  <select id="po_payschedule">
+                    <option>Immediate (0 days)</option>
+                    <option>Net 30 Days</option>
+                    <option selected>Net 45 Days</option>
+                    <option>Net 60 Days</option>
+                    <option>Net 90 Days</option>
+                  </select></div>
+                <div class="field"><label>Payment Mode <span class="req">*</span></label>
+                  <select id="po_paymode">
+                    <option>NEFT</option>
+                    <option>RTGS</option>
+                    <option selected>Cheque</option>
+                    <option>Bank Transfer</option>
+                  </select></div>
+              </div>
+            </div>
+
+            <!-- Milestone payment -->
+            <div id="payMS" style="display:none">
+              <table class="ms-table" id="msTable">
+                <thead><tr><th>Milestone Name</th><th>% of PO Value</th><th>Amount (&#8377;)</th><th></th></tr></thead>
+                <tbody id="msTbody"></tbody>
+              </table>
+              <div id="msTotalWrap" class="ms-total" style="margin-top:6px"></div>
+              <button class="btn btn-ghost btn-sm" style="margin-top:10px" onclick="addMilestone()">+ Add Milestone</button>
+            </div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="poPrev()">&lsaquo; Back</button><button class="btn btn-primary" onclick="poNext()">Next &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- PO Step 4: Validity -->
+      <div class="step-panel" id="po-panel-3">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Validity Period</h2><p>Delivery date auto-set to End Date + 3 months</p></div><div class="step-indicator">Step 4 of 8</div></div>
+          <div class="card-body">
+            <div class="form-row">
+              <div class="field"><label>Start Date <span class="req">*</span></label><input type="date" id="po_start" oninput="calcPODates()"/></div>
+              <div class="field"><label>End Date <span class="req">*</span></label><input type="date" id="po_end" oninput="calcPODates()"/></div>
+            </div>
+            <div class="sub-head">Computed value</div>
+            <div class="form-row cols-1">
+              <div class="field computed-field"><div class="computed-label"><label>Delivery Date</label><span class="ctag">auto</span></div>
+                <input type="text" id="po_delivery" readonly placeholder="End Date + 3 months"/>
+                <span class="field-note">Non-editable &mdash; End Date + 3 months</span></div>
+            </div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="poPrev()">&lsaquo; Back</button><button class="btn btn-primary" onclick="poNext()">Next &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- PO Step 5: Inco Terms -->
+      <div class="step-panel" id="po-panel-4">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Inco Terms</h2><p>Select trade terms — delivery location is auto-filled</p></div><div class="step-indicator">Step 5 of 8</div></div>
+          <div class="card-body">
+            <div class="form-row">
+              <div class="field"><label>Inco Terms <span class="req">*</span></label>
+                <select id="po_inco" onchange="fillInco()">
+                  <option value="">— Select —</option>
+                  <option value="EXW">EXW — Ex Works</option>
+                  <option value="FCA">FCA — Free Carrier</option>
+                  <option value="CPT">CPT — Carriage Paid To</option>
+                  <option value="CIP">CIP — Carriage &amp; Insurance Paid To</option>
+                  <option value="DAP">DAP — Delivered at Place</option>
+                  <option value="DPU">DPU — Delivered at Place Unloaded</option>
+                  <option value="DDP" selected>DDP — Delivered Duty Paid</option>
+                  <option value="FAS">FAS — Free Alongside Ship</option>
+                  <option value="FOB">FOB — Free on Board</option>
+                  <option value="CFR">CFR — Cost &amp; Freight</option>
+                  <option value="CIF">CIF — Cost, Insurance &amp; Freight</option>
+                </select></div>
+              <div class="field computed-field"><div class="computed-label"><label>Inco Location (Site)</label><span class="ctag">auto</span></div>
+                <input type="text" id="po_incoloc" readonly placeholder="Auto-filled from site master"/>
+                <span class="field-hint">Delivery site based on Inco term selected</span></div>
+            </div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="poPrev()">&lsaquo; Back</button><button class="btn btn-primary" onclick="poNext()">Next &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- PO Step 6: Negotiation -->
+      <div class="step-panel" id="po-panel-5">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Negotiation Details</h2><p>Record negotiation outcome and upload supporting documents</p></div><div class="step-indicator">Step 6 of 8</div></div>
+          <div class="card-body">
+            <div class="form-row cols-1" style="margin-bottom:16px">
+              <div class="field">
+                <label>Has negotiation been completed? <span class="req">*</span></label>
+                <div class="radio-group" style="margin-top:6px">
+                  <label onclick="toggleNeg('yes')"><input type="radio" name="negdone" id="neg_yes"/><span>Yes — Negotiation Done</span></label>
+                  <label onclick="toggleNeg('no')"><input type="radio" name="negdone" id="neg_no" checked/><span>No — Pending / Other Status</span></label>
+                </div>
+              </div>
+            </div>
+
+            <!-- YES branch -->
+            <div id="negYesBranch" style="display:none">
+              <div class="sub-head">Negotiation Levels</div>
+              <div id="negLevels"></div>
+              <button class="btn btn-ghost btn-sm" style="margin-bottom:16px" onclick="addNegLevel()">+ Add Negotiation Level</button>
+              <div class="form-row">
+                <div class="field"><label>Lead Negotiator <span class="req">*</span></label>
+                  <input type="text" id="neg_person" placeholder="Name of negotiator"/></div>
+                <div class="field"><label>Remarks</label>
+                  <input type="text" id="neg_remarks" placeholder="Key outcomes or notes"/></div>
+              </div>
+              <div class="field" style="margin-top:12px"><label>Upload Negotiation Documents <span class="opt">(optional)</span></label>
+                <div class="upload-box" style="padding:16px">
+                  <input type="file" id="neg_docs" accept=".pdf,.doc,.docx,.xlsx" multiple onchange="negHandleFiles(event)"/>
+                  <p style="font-size:12px"><strong>Click to attach</strong> negotiation docs, email trails, rate sheets</p>
+                  <p class="sub">PDF, DOC, XLSX supported</p>
+                </div>
+                <div id="negFilesWrap" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px"></div>
+              </div>
+            </div>
+
+            <!-- NO branch -->
+            <div id="negNoBranch">
+              <div class="form-row">
+                <div class="field"><label>Negotiation Status <span class="req">*</span></label>
+                  <select id="neg_status" onchange="toggleRateCard()">
+                    <option value="">— Select Status —</option>
+                    <option value="pending">Negotiation Pending</option>
+                    <option value="single">Single Vendor — No Negotiation</option>
+                    <option value="ratecard">Rate Card</option>
+                  </select></div>
+              </div>
+              <!-- Rate Card sub-branch -->
+              <div id="rateCardBranch" style="display:none;margin-top:4px">
+                <div class="notice warn"><strong>Rate Card selected.</strong> Select the applicable company below.</div>
+                <div class="form-row" style="margin-top:12px">
+                  <div class="field"><label>Applicable Company <span class="req">*</span></label>
+                    <select id="neg_ratecompany">
+                      <option value="">— Select —</option>
+                      <option>ABMCPL</option>
+                      <option>BMCSPL</option>
+                      <option>UTCL</option>
+                      <option>Others</option>
+                    </select></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="poPrev()">&lsaquo; Back</button><button class="btn btn-primary" onclick="poNext()">Next &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- PO Step 7: PO Info (Auto) -->
+      <div class="step-panel" id="po-panel-6">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>PO Information</h2><p>Auto-populated from PR and vendor master — read-only</p></div><div class="step-indicator">Step 7 of 8</div></div>
+          <div class="card-body">
+            <div class="notice info"><strong>Auto-filled</strong> based on PR details and vendor master data. These fields are non-editable.</div>
+            <div class="form-row">
+              <div class="field computed-field"><div class="computed-label"><label>PO Category</label><span class="ctag">auto</span></div>
+                <input type="text" readonly value="Software &amp; Licenses — CAPEX"/></div>
+              <div class="field computed-field"><div class="computed-label"><label>Header Text</label><span class="ctag">auto</span></div>
+                <input type="text" readonly value="SaaS Subscriptions FY25-26 — IT Dept."/></div>
+            </div>
+            <div class="form-row">
+              <div class="field computed-field"><div class="computed-label"><label>Purchase Group</label><span class="ctag">auto</span></div>
+                <input type="text" readonly value="PG-IT-001 (IT Procurement)"/></div>
+              <div class="field computed-field"><div class="computed-label"><label>Purchase Organisation</label><span class="ctag">auto</span></div>
+                <input type="text" readonly value="ACME-INDIA-PORG"/></div>
+            </div>
+            <div class="form-row">
+              <div class="field computed-field"><div class="computed-label"><label>Company Code</label><span class="ctag">auto</span></div>
+                <input type="text" readonly value="1000 — Acme Corp India Pvt. Ltd."/></div>
+              <div class="field computed-field"><div class="computed-label"><label>Plant</label><span class="ctag">auto</span></div>
+                <input type="text" readonly value="BLR1 — Bangalore HQ"/></div>
+            </div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="poPrev()">&lsaquo; Back</button><button class="btn btn-primary" onclick="poBuildReview();poGo(7)">Review &amp; Submit &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- PO Step 8: Review -->
+      <div class="step-panel" id="po-panel-7">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Review Before Submission</h2><p>Verify all details. Use Edit to return to any section.</p></div><div class="step-indicator">Step 8 of 8</div></div>
+          <div class="card-body" id="po_reviewBody"></div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="poPrev()">&lsaquo; Back</button><button class="btn btn-submit" onclick="poSubmit()">Submit PO for Approval</button></div>
+        </div>
+      </div>
+
+      <!-- PO Step 9: Done -->
+      <div class="step-panel" id="po-panel-8">
+        <div class="card">
+          <div class="success-wrap">
+            <h2>PO Submitted</h2>
+            <p>Saved to database, sent for approval, and queued for SAP.</p>
+            <div class="po-num-box" id="po_numDisplay">PO/2025-26/000045</div><br>
+            <span class="status-tag">PENDING APPROVAL</span>
+            <span class="sap-tag">QUEUED FOR SAP</span>
+            <div class="review-block" style="text-align:left;max-width:460px;margin:16px auto 20px">
+              <div class="review-block-head"><h4>What happens next</h4></div>
+              <dl class="review-dl">
+                <dt>Approvers notified</dt><dd>Automatically via email &amp; portal</dd>
+                <dt>SAP Integration</dt><dd>PO will be pushed to SAP once approved</dd>
+                <dt>Status</dt><dd>Pending L1 Approval</dd>
+                <dt>SLA</dt><dd>2 working days</dd>
+                <dt>Track</dt><dd>My POs &rarr; Open POs</dd>
+              </dl>
+            </div>
+            <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+              <button class="btn btn-primary" onclick="startPO()">+ New PO</button>
+              <button class="btn btn-ghost" onclick="goHome()">Back to Dashboard</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /viewPO -->
+</div><!-- /mainApp -->
+
+<script>
+// ── HELPERS ────────────────────────────────────────────────
+function v(id){return (document.getElementById(id)||{}).value||'—'}
+function pad2(n){return String(n).padStart(2,'0')}
+function fmtDate(d){return d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}
+function fmtINR(n){return n>0?'₹ '+n.toLocaleString('en-IN',{minimumFractionDigits:2}):''}
+
+// ── LOGIN ───────────────────────────────────────────────────
+function doLogin(){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('mainApp').style.display='block';
+  const now=new Date(), y=now.getFullYear(), m=pad2(now.getMonth()+1), d=pad2(now.getDate());
+  const today=`${y}-${m}-${d}`;
+  document.getElementById('pr_start').value=today;
+  document.getElementById('po_start').value=today;
+  const e=new Date(now); e.setFullYear(e.getFullYear()+1);
+  document.getElementById('pr_end').value=`${e.getFullYear()}-${m}-${d}`;
+  document.getElementById('po_end').value=`${e.getFullYear()}-${m}-${d}`;
+  calcPRDates(); calcPODates();
+  addMilestone(); addMilestone();
+  addNegLevel();
+}
+
+// ── VIEWS ──────────────────────────────────────────────────
+function showView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function goHome(){
+  showView('viewHome');
+  document.getElementById('navTitle').textContent='Procurement';
+  document.getElementById('breadcrumb').innerHTML='<a href="#" onclick="goHome();return false">Home</a> &rsaquo; <a href="#">Procurement</a> &rsaquo; Dashboard';
+}
+function startPR(){
+  prCur=0; updatePRStepper(); showPanel('pr',0);
+  showView('viewPR');
+  document.getElementById('navTitle').textContent='Purchase Request';
+  document.getElementById('breadcrumb').innerHTML='<a href="#" onclick="goHome();return false">Home</a> &rsaquo; <a href="#">Procurement</a> &rsaquo; New PR';
+}
+function startPO(){
+  poCur=0; updatePOStepper(); showPanel('po',0);
+  showView('viewPO');
+  document.getElementById('navTitle').textContent='Purchase Order';
+  document.getElementById('breadcrumb').innerHTML='<a href="#" onclick="goHome();return false">Home</a> &rsaquo; <a href="#">Procurement</a> &rsaquo; New PO';
+}
+
+// ── GENERIC PANEL SHOW ─────────────────────────────────────
+function showPanel(prefix,n){
+  document.querySelectorAll(`#view${prefix.toUpperCase()} .step-panel`).forEach(p=>p.classList.remove('active'));
+  document.getElementById(`${prefix}-panel-${n}`).classList.add('active');
+  window.scrollTo({top:80,behavior:'smooth'});
+}
+
+// ── PR STEPPER ─────────────────────────────────────────────
+let prCur=0, PR_TOTAL=7;
+function updatePRStepper(){
+  const tabs=document.querySelectorAll('#pr-stepper .step-tab');
+  tabs.forEach((t,i)=>{t.classList.remove('active','done');if(i<prCur)t.classList.add('done');if(i===prCur)t.classList.add('active')});
+  document.getElementById('pr-prog').style.width=(((prCur+1)/(PR_TOTAL+1))*100).toFixed(1)+'%';
+}
+function prGo(n){if(n<=prCur){prCur=n;updatePRStepper();showPanel('pr',n)}}
+function prNext(){if(prCur<PR_TOTAL){prCur++;updatePRStepper();showPanel('pr',prCur)}}
+function prPrev(){if(prCur>0){prCur--;updatePRStepper();showPanel('pr',prCur)}}
+
+// ── PO STEPPER ─────────────────────────────────────────────
+let poCur=0, PO_TOTAL=8;
+function updatePOStepper(){
+  const tabs=document.querySelectorAll('#po-stepper .step-tab');
+  tabs.forEach((t,i)=>{t.classList.remove('active','done');if(i<poCur)t.classList.add('done');if(i===poCur)t.classList.add('active')});
+  document.getElementById('po-prog').style.width=(((poCur+1)/(PO_TOTAL+1))*100).toFixed(1)+'%';
+}
+function poGo(n){if(n<=poCur){poCur=n;updatePOStepper();showPanel('po',n)}}
+function poNext(){if(poCur<PO_TOTAL){poCur++;updatePOStepper();showPanel('po',poCur)}}
+function poPrev(){if(poCur>0){poCur--;updatePOStepper();showPanel('po',poCur)}}
+
+// ── PR LOGIC ───────────────────────────────────────────────
+function calcPR(){
+  const q=parseFloat(document.getElementById('pr_qty').value)||0;
+  const r=parseFloat(document.getElementById('pr_rate').value)||0;
+  const val=q*r;
+  document.getElementById('pr_value').value=fmtINR(val);
+  const over=val>1050000&&val>0;
+  document.getElementById('pr_budgetErr').style.display=over?'block':'none';
+  document.getElementById('prBtnS3').disabled=over;
+}
+function calcPRDates(){
+  const ev=document.getElementById('pr_end').value;
+  if(!ev)return;
+  const d=new Date(ev); d.setMonth(d.getMonth()+3);
+  document.getElementById('pr_delivery').value=fmtDate(d);
+}
+function prHandleFile(e){
+  const f=e.target.files[0]; if(!f)return;
+  document.getElementById('pr_fileOkTxt').textContent='Attached: '+f.name;
+  document.getElementById('pr_fileOk').style.display='block';
+  document.getElementById('pr_skipNote').style.display='none';
+  setTimeout(()=>{document.getElementById('pr_aiBox').style.display='block'},700);
+}
+function prBuildReview(){
+  const s=[
+    {t:'Basic Information',step:0,rows:[['Company',v('pr_company')],['Financial Year',v('pr_fy')],['Cost Type',v('pr_costtype')],['Function',v('pr_function')],['Category',v('pr_category')],['Line Item',v('pr_lineitem')]]},
+    {t:'Budget',step:1,rows:[['Allocated','₹ 25,00,000'],['Utilized','₹ 14,50,000'],['Available','₹ 10,50,000']]},
+    {t:'PR Amount',step:2,rows:[['Quantity',v('pr_qty')],['Rate (₹)','₹ '+(Number(v('pr_rate'))||0).toLocaleString('en-IN')],['PR Value',v('pr_value')]]},
+    {t:'Validity',step:3,rows:[['Start Date',v('pr_start')],['End Date',v('pr_end')],['Delivery Date',v('pr_delivery')]]},
+    {t:'Additional',step:4,rows:[['Tax',v('pr_tax')],['Cost Centre',v('pr_cc')],['Remarks',v('pr_remarks')||'None']]},
+    {t:'Scope of Work',step:5,rows:[['Document',(document.getElementById('pr_sow')?.files[0]?.name)||'Not attached'],['Summary',(document.getElementById('pr_aiText')?.value||'').substring(0,80)+'…']]},
+  ];
+  document.getElementById('pr_reviewBody').innerHTML=buildReviewHTML(s);
+}
+function prSubmit(){
+  const n='PR/2025-26/'+String(100000+Math.floor(Math.random()*9000)).slice(0,6);
+  document.getElementById('pr_numDisplay').textContent=n;
+  prCur=PR_TOTAL; updatePRStepper(); showPanel('pr',PR_TOTAL);
+}
+
+// ── PO LOGIC ───────────────────────────────────────────────
+const vendorMaster={
+  TCS:{code:'V-1001',addr:'TCS House, Raveline St, Fort, Mumbai 400001',tax:'27AAACT2727Q1ZW'},
+  INF:{code:'V-1002',addr:'Electronics City, Hosur Rd, Bangalore 560100',tax:'29AAACI1681G1ZK'},
+  WIP:{code:'V-1003',addr:'Doddakannelli, Sarjapur Rd, Bangalore 560035',tax:'29AAACW1580R1ZC'},
+  SAP:{code:'V-1004',addr:'Manyata Tech Park, Nagawara, Bangalore 560045',tax:'29AAKCS1659Q1ZX'},
+  ORA:{code:'V-1005',addr:'Oracle Park, Off Western Express Hwy, Mumbai 400063',tax:'27AAACO1412J1Z6'},
+};
+function fillVendor(){
+  const key=document.getElementById('po_vendor').value;
+  const m=vendorMaster[key]||{code:'',addr:'',tax:''};
+  document.getElementById('po_vcode').value=m.code;
+  document.getElementById('po_vaddr').value=m.addr;
+  document.getElementById('po_vtax').value=m.tax;
+}
+function calcPO(){
+  const q=parseFloat(document.getElementById('po_qty').value)||0;
+  const r=parseFloat(document.getElementById('po_rate').value)||0;
+  const val=q*r;
+  document.getElementById('po_value').value=fmtINR(val);
+  const over=val>600000&&val>0;
+  document.getElementById('po_valErr').style.display=over?'block':'none';
+  document.getElementById('poBtnS2').disabled=over;
+}
+function calcPODates(){
+  const ev=document.getElementById('po_end').value; if(!ev)return;
+  const d=new Date(ev); d.setMonth(d.getMonth()+3);
+  document.getElementById('po_delivery').value=fmtDate(d);
+}
+
+// Inco location map
+const incoLoc={EXW:'Vendor Premises',FCA:'Vendor Warehouse, Bangalore',CPT:'Acme Corp — Bangalore HQ',CIP:'Acme Corp — Bangalore HQ',DAP:'Acme Corp — Bangalore HQ',DPU:'Acme Corp — Bangalore HQ (Unloaded)',DDP:'Acme Corp — Bangalore HQ',FAS:'JNPT, Nhava Sheva',FOB:'JNPT, Nhava Sheva',CFR:'JNPT, Nhava Sheva',CIF:'JNPT, Nhava Sheva'};
+function fillInco(){
+  const k=document.getElementById('po_inco').value;
+  document.getElementById('po_incoloc').value=incoLoc[k]||'';
+}
+fillInco();
+
+// Payment toggle
+function togglePayment(type){
+  document.getElementById('payStd').style.display=type==='std'?'block':'none';
+  document.getElementById('payMS').style.display=type==='ms'?'block':'none';
+}
+
+// Milestones
+let msRows=[];
+function addMilestone(){
+  const id=Date.now();
+  msRows.push(id);
+  renderMilestones();
+}
+function removeMilestone(id){
+  msRows=msRows.filter(r=>r!==id);
+  renderMilestones();
+}
+function renderMilestones(){
+  const tbody=document.getElementById('msTbody');
+  tbody.innerHTML=msRows.map(id=>`
+    <tr>
+      <td><input type="text" placeholder="e.g. Advance Payment" id="ms_name_${id}"/></td>
+      <td><input type="number" placeholder="e.g. 30" min="0" max="100" id="ms_pct_${id}" oninput="calcMSAmount(${id})"/></td>
+      <td><input type="text" id="ms_amt_${id}" readonly placeholder="Auto"/></td>
+      <td><button class="ms-del" onclick="removeMilestone(${id})">&#10005;</button></td>
+    </tr>`).join('');
+}
+function calcMSAmount(id){
+  const pct=parseFloat(document.getElementById('ms_pct_'+id).value)||0;
+  const poVal=parseFloat((document.getElementById('po_value').value||'0').replace(/[^\d.]/g,''))||0;
+  const amt=(pct/100)*poVal;
+  document.getElementById('ms_amt_'+id).value=fmtINR(amt);
+  updateMSTotal();
+}
+function updateMSTotal(){
+  let total=0;
+  msRows.forEach(id=>{
+    total+=(parseFloat(document.getElementById('ms_pct_'+id)?.value)||0);
+  });
+  const el=document.getElementById('msTotalWrap');
+  if(!el)return;
+  el.textContent=`Total: ${total.toFixed(1)}%`;
+  el.className='ms-total '+(Math.abs(total-100)<0.1?'ok':'err');
+}
+
+// Negotiation
+let negLevels=[];
+const negLevelOpts=['First Level','Second Level','Third Level','Final Level'];
+function addNegLevel(){
+  negLevels.push(Date.now());
+  renderNegLevels();
+}
+function removeNegLevel(id){
+  negLevels=negLevels.filter(r=>r!==id);
+  renderNegLevels();
+}
+function renderNegLevels(){
+  const wrap=document.getElementById('negLevels');
+  wrap.innerHTML=negLevels.map((id,i)=>`
+    <div style="border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px;overflow:hidden">
+      <div style="background:var(--surf2);border-bottom:1px solid var(--border);padding:7px 12px;font-size:11px;font-weight:700;color:var(--text2);display:flex;justify-content:space-between;align-items:center">
+        <span>${negLevelOpts[i]||'Level '+(i+1)}</span>
+        <button class="ms-del" onclick="removeNegLevel(${id})">&#10005;</button>
+      </div>
+      <div style="padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="field"><label>Negotiation Date</label><input type="date" id="neg_date_${id}"/></div>
+        <div class="field"><label>Outcome</label><select id="neg_outcome_${id}"><option>Price Reduced</option><option>Terms Adjusted</option><option>No Change</option><option>Further Negotiation Required</option></select></div>
+      </div>
+    </div>`).join('');
+}
+function toggleNeg(val){
+  document.getElementById('negYesBranch').style.display=val==='yes'?'block':'none';
+  document.getElementById('negNoBranch').style.display=val==='no'?'block':'none';
+}
+function toggleRateCard(){
+  const val=document.getElementById('neg_status').value;
+  document.getElementById('rateCardBranch').style.display=val==='ratecard'?'block':'none';
+}
+function negHandleFiles(e){
+  const wrap=document.getElementById('negFilesWrap');
+  Array.from(e.target.files).forEach(f=>{
+    const chip=document.createElement('div');
+    chip.className='file-chip';
+    chip.textContent=f.name;
+    wrap.appendChild(chip);
+  });
+}
+
+function poBuildReview(){
+  const negDone=document.getElementById('neg_yes').checked;
+  const s=[
+    {t:'Vendor',step:0,rows:[['Vendor Name',v('po_vendor')],['Vendor Code',v('po_vcode')],['Address',v('po_vaddr')],['GSTIN',v('po_vtax')]]},
+    {t:'PO Amount',step:1,rows:[['Quantity',v('po_qty')],['Rate (₹)','₹ '+(Number(v('po_rate'))||0).toLocaleString('en-IN')],['PO Value',v('po_value')]]},
+    {t:'Payment Terms',step:2,rows:[[document.getElementById('pay_ms').checked?'Milestone Based':'Payment Schedule',document.getElementById('pay_ms').checked?'Milestone-based (see milestones)':v('po_payschedule')],['Mode',v('po_paymode')]]},
+    {t:'Validity & Delivery',step:3,rows:[['Start Date',v('po_start')],['End Date',v('po_end')],['Delivery Date',v('po_delivery')]]},
+    {t:'Inco Terms',step:4,rows:[['Inco Term',v('po_inco')],['Delivery Location',v('po_incoloc')]]},
+    {t:'Negotiation',step:5,rows:[['Negotiation Done',negDone?'Yes':'No'],[negDone?'Negotiator':'Status',negDone?v('neg_person'):v('neg_status')],[negDone?'Remarks':'Rate Card Company',negDone?v('neg_remarks'):v('neg_ratecompany')]]},
+    {t:'PO Information',step:6,rows:[['PO Category','Software & Licenses — CAPEX'],['Purchase Group','PG-IT-001'],['Purchase Org.','ACME-INDIA-PORG'],['Plant','BLR1 — Bangalore HQ']]},
+  ];
+  document.getElementById('po_reviewBody').innerHTML=buildReviewHTML(s);
+}
+function poSubmit(){
+  const n='PO/2025-26/'+String(10000+Math.floor(Math.random()*9000)).slice(0,5);
+  document.getElementById('po_numDisplay').textContent=n;
+  poCur=PO_TOTAL; updatePOStepper(); showPanel('po',PO_TOTAL);
+}
+
+// ── SHARED REVIEW BUILDER ──────────────────────────────────
+function buildReviewHTML(sections){
+  return sections.map(s=>`
+    <div class="review-block">
+      <div class="review-block-head"><h4>${s.t}</h4><button class="review-edit" onclick="poGo?.(${s.step});prGo?.(${s.step})">Edit</button></div>
+      <dl class="review-dl">${s.rows.map(([k,vv])=>`<dt>${k}</dt><dd>${vv||'—'}</dd>`).join('')}</dl>
+    </div>`).join('');
+}
+</script>
+</body>
+</html>

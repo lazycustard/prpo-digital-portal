@@ -1,0 +1,2755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Acme Corp — Procurement Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  /* Alliance Polysacks palette mapped onto the portal's existing tokens */
+  --navy:#0e2a5a;--accent:#1e5bb5;--accent-h:#163a73;--accent-lt:#DDEAFC;
+  --green:#15803D;--green-lt:#DCFCE7;--red:#B91C1C;--red-lt:#FEE2E2;
+  --amber:#B45309;--amber-lt:#FEF3C7;
+  --text:#0F172A;--text2:#334155;--text3:#94A3B8;
+  --border:#E2E8F0;--border-dk:#CBD5E1;
+  --bg:#f0f4fb;--surf:#FFFFFF;--surf2:#f7f9fd;--r:8px;
+  --font:'Space Grotesk',sans-serif;--mono:'JetBrains Mono',monospace;
+}
+body{font-family:var(--font);background:var(--bg);
+  background-image:radial-gradient(circle, rgba(30,91,181,0.06) 1px, transparent 1px);background-size:28px 28px;
+  color:var(--text);min-height:100vh;font-size:14px;line-height:1.5}
+
+/* NAV */
+.topnav{background:var(--navy);height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:200}
+.nav-left{display:flex;align-items:center;gap:18px}
+.nav-logo{display:flex;align-items:center;gap:8px;color:#fff;font-weight:700;font-size:15px}
+.nav-logo span{background:#fff;color:var(--navy);font-size:11px;font-weight:700;padding:2px 6px;border-radius:3px;letter-spacing:.05em}
+.nav-sep{width:1px;height:22px;background:rgba(255,255,255,.2)}
+.nav-title{color:rgba(255,255,255,.65);font-size:13px}
+.nav-right{display:flex;align-items:center;gap:16px;color:rgba(255,255,255,.7);font-size:13px}
+.nav-user{display:flex;align-items:center;gap:7px;cursor:pointer;color:rgba(255,255,255,.85)}
+.nav-avatar{width:28px;height:28px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff}
+
+/* BREADCRUMB */
+.breadcrumb{background:var(--surf);border-bottom:1px solid var(--border);padding:8px 24px;font-size:12px;color:var(--text3);display:flex;align-items:center;gap:6px}
+.breadcrumb a{color:var(--accent);text-decoration:none}
+.breadcrumb a:hover{text-decoration:underline}
+
+/* PAGE */
+.page{max-width:980px;margin:0 auto;padding:24px 20px 60px}
+.page-title-row{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px}
+.page-title-row h1{font-size:18px;font-weight:700}
+.page-title-row p{font-size:12px;color:var(--text3);margin-top:2px}
+.draft-badge{background:var(--amber-lt);color:var(--amber);border:1px solid #D97706;font-size:11px;font-weight:500;padding:3px 10px;border-radius:3px;margin-top:4px}
+
+/* HOME DASHBOARD */
+.home-wrap{max-width:700px;margin:40px auto 0}
+.home-wrap h2{font-size:16px;font-weight:700;margin-bottom:6px}
+.home-wrap p{font-size:13px;color:var(--text2);margin-bottom:24px}
+.module-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.module-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);padding:24px 20px;cursor:pointer;transition:border-color .15s,box-shadow .15s;position:relative;overflow:hidden}
+.module-card:hover{border-color:var(--accent);box-shadow:0 2px 8px rgba(0,85,204,.1)}
+.module-card h3{font-size:15px;font-weight:700;margin-bottom:6px;color:var(--text)}
+.module-card p{font-size:12px;color:var(--text2);line-height:1.5}
+.module-card .mod-tag{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 8px;border-radius:2px;margin-bottom:10px}
+.module-card .mod-tag.pr{background:var(--accent-lt);color:var(--accent)}
+.module-card .mod-tag.po{background:var(--green-lt);color:var(--green)}
+.module-card .mod-arrow{position:absolute;right:16px;bottom:16px;font-size:18px;color:var(--border-dk)}
+.module-card:hover .mod-arrow{color:var(--accent)}
+.module-card ul{margin-top:10px;padding-left:14px;font-size:12px;color:var(--text2);line-height:1.8}
+
+/* STEPPER */
+.stepper-bar{background:var(--surf);border:1px solid var(--border);border-radius:var(--r);margin-bottom:16px;overflow:hidden}
+.stepper-inner{display:flex;border-bottom:2px solid var(--border)}
+.step-tab{flex:1;padding:10px 4px 9px;text-align:center;font-size:11px;color:var(--text3);border-right:1px solid var(--border);cursor:pointer;transition:background .12s;user-select:none}
+.step-tab:last-child{border-right:none}
+.step-tab:hover{background:var(--bg)}
+.step-tab .snum{display:block;font-size:10px;font-weight:700;color:var(--text3);margin-bottom:2px;font-family:var(--mono)}
+.step-tab.active{background:var(--accent-lt);color:var(--accent);border-bottom:2px solid var(--accent);margin-bottom:-2px}
+.step-tab.active .snum{color:var(--accent)}
+.step-tab.done{color:var(--text2);background:var(--surf2)}
+.step-tab.done .snum{color:var(--green)}
+.step-tab.done::after{content:' ✓';color:var(--green);font-size:10px}
+.progress-strip{height:3px;background:var(--border)}
+.progress-fill{height:100%;background:var(--accent);transition:width .3s}
+
+/* CARD */
+.card{background:var(--surf);border:1px solid var(--border);border-radius:var(--r)}
+.card-head{padding:14px 20px 13px;border-bottom:1px solid var(--border);background:var(--surf2);display:flex;align-items:center;justify-content:space-between}
+.card-head-left h2{font-size:14px;font-weight:700}
+.card-head-left p{font-size:12px;color:var(--text3);margin-top:1px}
+.step-indicator{font-size:11px;color:var(--text3);font-family:var(--mono);background:var(--bg);border:1px solid var(--border);padding:3px 9px;border-radius:3px}
+.card-body{padding:20px}
+.card-foot{border-top:1px solid var(--border);padding:12px 20px;background:var(--surf2);display:flex;align-items:center;justify-content:space-between}
+.foot-left{font-size:11px;color:var(--text3)}
+
+/* FORM */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.form-row.cols-3{grid-template-columns:1fr 1fr 1fr}
+.form-row.cols-1{grid-template-columns:1fr}
+.form-row:last-child{margin-bottom:0}
+.field{display:flex;flex-direction:column;gap:4px}
+.field.span2{grid-column:span 2}
+label{font-size:12px;font-weight:500;color:var(--text2)}
+.req{color:var(--red);margin-left:1px}
+.opt{color:var(--text3);font-weight:400;font-size:11px}
+input[type=text],input[type=number],input[type=date],input[type=password],select,textarea{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:var(--r);font-size:13px;color:var(--text);background:var(--surf);font-family:var(--font);transition:border-color .1s,box-shadow .1s;appearance:none;-webkit-appearance:none}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba(0,85,204,.12)}
+input[readonly],input:disabled{background:var(--bg);color:var(--text3);cursor:default}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239CA3AF' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;padding-right:28px}
+textarea{resize:vertical;min-height:80px;line-height:1.5}
+.field-hint{font-size:11px;color:var(--text3);margin-top:2px}
+.field-note{font-size:11px;color:var(--text3);background:var(--bg);border:1px solid var(--border);padding:5px 9px;border-radius:3px;margin-top:2px}
+.computed-field input{background:#FAFAFA;font-weight:500;font-family:var(--mono);font-size:13px}
+.computed-label{display:flex;align-items:center;gap:6px}
+.ctag{font-size:10px;font-weight:700;color:var(--green);background:var(--green-lt);border:1px solid #6EE7A3;padding:1px 6px;border-radius:2px;text-transform:uppercase;letter-spacing:.04em}
+.sub-head{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);padding:14px 0 10px;border-bottom:1px solid var(--border);margin-bottom:16px}
+
+/* NOTICES */
+.notice{border-left:3px solid var(--border-dk);padding:9px 12px;font-size:12px;color:var(--text2);background:var(--surf2);margin:12px 0}
+.notice.error{border-color:var(--red);background:var(--red-lt);color:#7F1D1D}
+.notice.ok{border-color:var(--green);background:var(--green-lt);color:#14532D}
+.notice.info{border-color:var(--accent);background:var(--accent-lt);color:#1e3a6e}
+.notice.warn{border-color:#D97706;background:var(--amber-lt);color:var(--amber)}
+.notice strong{font-weight:700;display:block;margin-bottom:2px}
+.app-message{position:fixed;right:20px;bottom:20px;z-index:500;max-width:420px;display:none;box-shadow:0 4px 16px rgba(0,0,0,.15)}
+.gov-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}.gov-stat{background:var(--surf);border:1px solid var(--border);padding:14px;border-radius:var(--r)}.gov-stat b{display:block;font-size:20px;color:var(--navy);margin-top:4px}.gov-table{width:100%;border-collapse:collapse;font-size:12px}.gov-table th,.gov-table td{padding:9px;border-bottom:1px solid var(--border);text-align:left}.gov-table th{color:var(--text3);font-size:10px;text-transform:uppercase}.gov-actions{white-space:nowrap}
+/* Persona dashboards */
+.kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:16px}
+.kpi-tile{background:var(--surf);border:1px solid var(--border);border-top:3px solid var(--accent);border-radius:var(--r);padding:12px 14px}
+.kpi-tile .kpi-label{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text3)}
+.kpi-tile .kpi-value{font-size:22px;font-weight:700;color:var(--navy);margin-top:4px;line-height:1.1}
+.kpi-tile .kpi-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.dash-row{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin-bottom:16px}
+.bar-list{display:flex;flex-direction:column;gap:10px}
+.bar-row{display:grid;grid-template-columns:150px 1fr auto;align-items:center;gap:10px;font-size:12px}
+.bar-row .bar-track{background:var(--surf2);border-radius:3px;height:10px;overflow:hidden}
+.bar-row .bar-fill{height:100%;background:var(--accent);border-radius:3px}
+.bar-row .bar-val{font-family:var(--mono);font-size:11px;color:var(--text2);white-space:nowrap}
+.alert-row{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:4px;font-size:12px;margin-bottom:6px;background:var(--surf2)}
+.alert-tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;flex-shrink:0}
+.alert-tag.HIGH{background:var(--red-lt);color:var(--red)}
+.alert-tag.MED{background:var(--amber-lt);color:var(--amber)}
+.alert-tag.LOW{background:var(--accent-lt);color:var(--accent)}
+.digest-panel{background:#FFFBEB;border:1px solid #FDE68A;border-radius:var(--r);padding:16px}
+.digest-panel h3{font-size:13px;margin-bottom:8px}
+.digest-panel p{font-size:12px;color:var(--text2);margin-bottom:10px}
+.role-pill{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:4px 10px;border-radius:3px;background:var(--navy);color:#fff}
+
+/* Dashboard polish */
+#viewGovernance .page{max-width:1180px}
+#viewGovernance .page-title-row{align-items:center;margin-bottom:18px}
+#viewGovernance .page-title-row h1{font-size:22px;letter-spacing:-.01em}
+#viewGovernance .page-title-row p{font-size:13px;color:#7C8DA8}
+#gov_dashboard .card,.gov-stat,.kpi-tile,.digest-panel{box-shadow:0 10px 28px rgba(14,42,90,.07)}
+#gov_dashboard .card,.kpi-tile{border-color:#DCE6F4;background:linear-gradient(180deg,#fff 0%,#fbfdff 100%)}
+.kpi-grid{gap:12px;margin-bottom:18px}
+.kpi-tile{position:relative;overflow:hidden;border-top:0;padding:15px 16px;min-height:104px}
+.kpi-tile::before{content:'';position:absolute;inset:0 0 auto 0;height:4px;background:linear-gradient(90deg,var(--accent),#45A3FF)}
+.kpi-tile::after{content:'';position:absolute;right:-22px;top:-28px;width:72px;height:72px;border-radius:50%;background:rgba(30,91,181,.08)}
+.kpi-tile .kpi-label{font-size:10px;color:#8BA0C0}
+.kpi-tile .kpi-value{font-size:25px;letter-spacing:-.02em}
+.kpi-tile .kpi-sub{line-height:1.35}
+.dash-row{gap:18px;margin-bottom:18px}
+#gov_dashboard .card-head{background:linear-gradient(180deg,#F8FBFF 0%,#F3F7FD 100%);padding:16px 20px}
+#gov_dashboard .card-head-left h2{font-size:15px;letter-spacing:-.01em}
+#gov_dashboard .card-body{padding:22px 20px}
+.trend-chart{width:100%;min-height:230px}
+.trend-chart svg{display:block;width:100%;height:220px;overflow:visible}
+.trend-legend{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:10px}
+.trend-legend span{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--text2)}
+.trend-legend i{width:9px;height:9px;border-radius:999px;display:inline-block;box-shadow:0 0 0 3px rgba(30,91,181,.08)}
+.bar-row{grid-template-columns:140px 1fr 42px}
+.bar-row .bar-track{height:11px;background:#EEF4FC}
+.bar-row .bar-fill{background:linear-gradient(90deg,var(--accent),#3D7FE0)}
+.digest-panel{background:linear-gradient(145deg,#FFF9DB 0%,#FFFEF8 100%);border-color:#F6D96B}
+@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.dash-row{grid-template-columns:1fr}.gov-stats{grid-template-columns:repeat(2,1fr)}}
+.dashboard-filterbar{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr auto auto;gap:10px;align-items:end;background:rgba(255,255,255,.82);border:1px solid #DCE6F4;border-radius:var(--r);padding:14px;margin-bottom:16px;box-shadow:0 10px 28px rgba(14,42,90,.06)}
+.dashboard-filterbar .field{gap:3px}
+.dashboard-filterbar label{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#7C8DA8;font-weight:700}
+.dashboard-state{border:1px dashed #BDD0EA;background:#F8FBFF;border-radius:var(--r);padding:28px;text-align:center;color:#62748F;margin-bottom:16px}
+.dashboard-state strong{display:block;color:var(--navy);font-size:14px;margin-bottom:4px}
+@media(max-width:1100px){.dashboard-filterbar{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:680px){.dashboard-filterbar{grid-template-columns:1fr}.dashboard-filterbar .btn{justify-content:center}}
+
+/* BUDGET TABLE */
+.budget-table{width:100%;border-collapse:collapse;font-size:13px;margin:12px 0}
+.budget-table td{padding:9px 12px;border:1px solid var(--border)}
+.budget-table td:first-child{background:var(--surf2);color:var(--text2);font-weight:500;width:45%}
+.budget-table td:last-child{font-family:var(--mono);font-weight:500}
+.budget-table tr.avail td:last-child{color:var(--green)}
+.budget-table tr.used td:last-child{color:var(--amber)}
+.budget-bar-wrap{height:6px;background:var(--border);border-radius:0;margin:12px 0 4px;overflow:hidden}
+.budget-bar-fill{height:100%;background:var(--accent)}
+.budget-bar-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--text3)}
+
+/* MILESTONE TABLE */
+.ms-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:12px}
+.ms-table th{background:var(--surf2);border:1px solid var(--border);padding:7px 10px;font-weight:700;color:var(--text2);text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+.ms-table td{border:1px solid var(--border);padding:7px 10px;color:var(--text)}
+.ms-table td input{padding:4px 6px;font-size:12px;border:1px solid var(--border);border-radius:3px;width:100%}
+.ms-table tr:nth-child(even) td{background:var(--surf2)}
+.ms-del{background:none;border:none;color:var(--red);cursor:pointer;font-size:14px;padding:2px 6px}
+.ms-del:hover{color:#7F1D1D}
+.ms-total{font-size:12px;color:var(--text2);margin-top:6px;font-family:var(--mono)}
+.ms-total.ok{color:var(--green)}
+.ms-total.err{color:var(--red)}
+
+/* NEGOTIATION BRANCH */
+.branch-wrap{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.branch-box{border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.branch-box-head{background:var(--surf2);border-bottom:1px solid var(--border);padding:9px 14px;font-size:12px;font-weight:700;color:var(--text2)}
+.branch-box-body{padding:14px}
+
+/* UPLOAD */
+.upload-box{border:1px dashed var(--border-dk);background:var(--surf2);padding:24px 20px;text-align:center;cursor:pointer;position:relative;border-radius:var(--r);transition:border-color .15s,background .15s}
+.upload-box:hover{border-color:var(--accent);background:var(--accent-lt)}
+.upload-box input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;border:none;padding:0}
+.upload-box p{font-size:13px;color:var(--text2);margin-bottom:4px}
+.upload-box .sub{font-size:11px;color:var(--text3)}
+.file-chip{display:inline-flex;align-items:center;gap:6px;background:var(--surf2);border:1px solid var(--border);border-radius:3px;padding:4px 10px;font-size:12px;color:var(--text2);margin-top:8px}
+
+/* REVIEW */
+.review-block{border:1px solid var(--border);border-radius:var(--r);margin-bottom:12px;overflow:hidden}
+.review-block-head{background:var(--surf2);border-bottom:1px solid var(--border);padding:8px 14px;display:flex;align-items:center;justify-content:space-between}
+.review-block-head h4{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em}
+.review-edit{font-size:11px;color:var(--accent);cursor:pointer;background:none;border:1px solid var(--accent);padding:2px 8px;border-radius:3px;font-family:inherit;transition:background .1s}
+.review-edit:hover{background:var(--accent-lt)}
+.review-dl{width:100%;padding:10px 14px;display:grid;grid-template-columns:38% 62%;font-size:12px}
+.review-dl dt{color:var(--text3);padding:4px 0}
+.review-dl dd{color:var(--text);font-weight:500;padding:4px 0}
+
+/* SUCCESS */
+.success-wrap{padding:40px 24px;text-align:center}
+.success-wrap h2{font-size:20px;font-weight:700;margin-bottom:6px}
+.success-wrap p{font-size:13px;color:var(--text2)}
+.po-num-box{display:inline-block;border:1px solid var(--border-dk);background:var(--surf2);font-family:var(--mono);font-size:16px;font-weight:700;color:var(--text);padding:10px 24px;border-radius:var(--r);margin:16px 0;letter-spacing:.08em}
+.status-tag{display:inline-block;background:var(--amber-lt);color:var(--amber);border:1px solid #D97706;font-size:11px;font-weight:700;padding:3px 10px;border-radius:3px;margin-bottom:20px;letter-spacing:.04em}
+.sap-tag{display:inline-block;background:#F0F4FF;color:#1A3A8F;border:1px solid #93A8E0;font-size:11px;font-weight:700;padding:3px 10px;border-radius:3px;margin-left:6px;letter-spacing:.04em}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 18px;font-size:13px;font-weight:500;font-family:var(--font);border-radius:var(--r);border:1px solid transparent;cursor:pointer;transition:background .12s,border-color .12s}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-primary:hover{background:var(--accent-h)}
+.btn-primary:disabled{background:var(--border-dk);border-color:var(--border-dk);cursor:not-allowed;opacity:.6}
+.btn-ghost{background:var(--surf);color:var(--text2);border-color:var(--border)}
+.btn-ghost:hover{background:var(--bg);border-color:var(--border-dk)}
+.btn-submit{background:var(--green);color:#fff;border-color:var(--green)}
+.btn-submit:hover{background:#155d34}
+.btn-sm{padding:5px 12px;font-size:12px}
+
+/* LOGIN */
+.login-outer{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg)}
+.login-card{width:100%;max-width:380px;background:var(--surf);border:1px solid var(--border);border-radius:var(--r)}
+.login-head{background:var(--navy);padding:24px 24px 20px;border-radius:var(--r) var(--r) 0 0}
+.login-head h1{font-size:16px;font-weight:700;color:#fff;margin-bottom:2px}
+.login-head p{font-size:12px;color:rgba(255,255,255,.6)}
+.login-body{padding:20px 24px 24px}
+.login-footer{border-top:1px solid var(--border);padding:10px 24px;font-size:11px;color:var(--text3);border-radius:0 0 var(--r) var(--r);background:var(--surf2)}
+.otp-fields{display:flex;gap:7px;align-items:center}
+.otp-fields input{width:40px;text-align:center;font-size:15px;font-weight:700;font-family:var(--mono);padding:7px 4px}
+.otp-dash{color:var(--border-dk);font-size:16px;margin:0 2px}
+
+/* RADIO TOGGLE */
+.radio-group{display:flex;gap:0;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;width:fit-content}
+.radio-group label{display:flex;align-items:center;gap:6px;padding:6px 14px;font-size:12px;font-weight:500;cursor:pointer;color:var(--text2);background:var(--surf);border-right:1px solid var(--border);transition:background .1s}
+.radio-group label:last-child{border-right:none}
+.radio-group input[type=radio]{display:none}
+.radio-group input[type=radio]:checked+span{color:var(--accent);font-weight:700}
+.radio-group label:has(input:checked){background:var(--accent-lt);color:var(--accent)}
+
+/* PANELS */
+.view{display:none}.view.active{display:block}
+.step-panel{display:none}.step-panel.active{display:block}
+
+@media(max-width:600px){
+  .form-row{grid-template-columns:1fr}
+  .form-row.cols-3{grid-template-columns:1fr 1fr}
+  .card-foot{flex-direction:column;gap:8px;align-items:stretch}
+  .btn{justify-content:center}
+  .step-tab{font-size:10px;padding:8px 2px}
+  .module-grid{grid-template-columns:1fr}
+  .branch-wrap{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══ -->
+<div class="login-outer" id="loginScreen" style="display:none">
+  <div class="login-card">
+    <div class="login-head">
+      <h1>Acme Corp — Procurement Portal</h1>
+      <p id="loginSub">Sign in with your corporate email</p>
+    </div>
+    <div class="login-body">
+      <div id="loginStep1">
+        <div class="form-row cols-1" style="margin-bottom:12px">
+          <div class="field"><label>Email <span class="req">*</span></label>
+            <input type="email" id="loginEmail" placeholder="you@alliance.test"/></div>
+        </div>
+        <div class="form-row cols-1" style="margin-bottom:12px">
+          <div class="field"><label>Password <span class="req">*</span></label>
+            <input type="password" id="loginPassword" placeholder="••••••••" onkeydown="if(event.key==='Enter')doPasswordLogin()"/></div>
+        </div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="doPasswordLogin()">Sign In</button>
+      </div>
+      <div id="loginMsg" style="margin-top:10px;font-size:12px;color:var(--red);display:none"></div>
+    </div>
+    <div class="login-footer">Session expires after 30 min &nbsp;&middot;&nbsp; IT Help: ext. 1400</div>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+  <div id="mainApp">
+    <div id="appMessage" class="notice app-message" role="alert"></div>
+  <nav class="topnav">
+    <div class="nav-left">
+      <div class="nav-logo"><span>ACME</span> ERP Portal</div>
+      <div class="nav-sep"></div>
+      <div class="nav-title" id="navTitle">Procurement</div>
+    </div>
+    <div class="nav-right">
+      <span>FY&nbsp;2025-26</span>
+      <div class="nav-sep"></div>
+      <div class="nav-user" onclick="if(confirm('Sign out?'))logout()" title="Click to sign out">
+        <div class="nav-avatar" id="userBadge">JD</div><span id="userName">John Doe</span> &#9660;
+      </div>
+    </div>
+  </nav>
+  <div class="breadcrumb" id="breadcrumb">
+    <a href="#" onclick="goHome();return false">Home</a> &rsaquo;
+    <a href="#">Procurement</a> &rsaquo;
+    Dashboard
+  </div>
+
+  <!-- ══ HOME ══ -->
+  <div class="view active" id="viewHome">
+    <div class="page">
+      <div class="home-wrap">
+        <h2>Procurement Dashboard</h2>
+        <p>Select the transaction you want to create</p>
+        <div class="module-grid">
+          <div class="module-card" data-perm="pr:create" onclick="startPR()">
+            <div class="mod-tag pr">PR</div>
+            <h3>Purchase Request</h3>
+            <p>Raise a new internal purchase request for budget approval before vendor engagement.</p>
+            <ul>
+              <li>Basic Info &amp; Budget</li>
+              <li>PR Amount &amp; Validity</li>
+              <li>Scope of Work Upload</li>
+              <li>Approval Workflow</li>
+            </ul>
+            <span class="mod-arrow">&#8250;</span>
+          </div>
+          <div class="module-card" data-perm="po:create" onclick="startPO()">
+            <div class="mod-tag po">PO</div>
+            <h3>Purchase Order</h3>
+            <p>Create a purchase order against an approved PR. Covers vendor, payment terms, and negotiation.</p>
+            <ul>
+              <li>Vendor Selection</li>
+              <li>Payment &amp; Milestones</li>
+              <li>Negotiation Details</li>
+              <li>SAP Integration</li>
+            </ul>
+            <span class="mod-arrow">&#8250;</span>
+          </div>
+          <div class="module-card" data-perm="pr:create" onclick="startIPR()" style="border-color:var(--teal)">
+            <div class="mod-tag" style="background:#d3f5e8;color:#0d7c5c;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 8px;border-radius:2px;margin-bottom:10px;display:inline-block">IPR</div>
+            <h3>PR Request (Infra / Plant User)</h3>
+            <p>Plant Users (Infra Function) — IT Team fills PR input form for infra procurement with multi-year planning.</p>
+            <ul>
+              <li>Infra Line Items &amp; Budget Codes</li>
+              <li>Cross-FY Budget Allocation</li>
+              <li>Multi-Year Planning</li>
+              <li>Financial Details &amp; GL Account</li>
+            </ul>
+            <span class="mod-arrow">&#8250;</span>
+          </div>
+          <div class="module-card" data-perm="invoice:create" onclick="startINV()" style="border-color:var(--amber)">
+            <div class="mod-tag" style="background:var(--amber-lt);color:var(--amber);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 8px;border-radius:2px;margin-bottom:10px;display:inline-block">INV</div>
+            <h3>Invoice Management</h3>
+            <p>Governance Team — Validate &amp; submit vendor invoices against budget. Duplicate check &amp; budget validation included.</p>
+            <ul>
+              <li>Invoice Entry &amp; Validation</li>
+              <li>Duplicate Invoice Check</li>
+              <li>Budget Verification</li>
+              <li>Auto Budget Deduction</li>
+            </ul>
+            <span class="mod-arrow">&#8250;</span>
+          </div>
+          <div class="module-card" data-perm="governance:view" onclick="startGovernance()">
+            <div class="mod-tag pr">Governance</div>
+            <h3>Governance Control</h3>
+            <p>Review approvals, monitor PR-to-PO balances, and control procurement records.</p>
+            <ul><li>Pending approvals</li><li>Approved PRs available for PO</li><li>Budget usage</li></ul>
+            <span class="mod-arrow">&#8250;</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ GOVERNANCE ══ -->
+  <div class="view" id="viewGovernance">
+    <div class="page">
+      <div class="page-title-row"><div><h1 id="gov_title">Governance Control</h1><p id="gov_subtitle">Monitor approvals, PR consumption, and budget usage.</p></div><div><button class="btn btn-primary" data-perm="export:generate" onclick="exportExcel('all')">⬇ Export to Excel</button></div></div>
+      <div class="gov-stats" id="gov_statsBasic">
+        <div class="gov-stat"><span>Pending approvals</span><b id="gov_pending">0</b></div>
+        <div class="gov-stat"><span>Approved PRs available for PO</span><b id="gov_available">0</b></div>
+        <div class="gov-stat"><span>Budget used</span><b id="gov_budgetUsed">₹ 0.00</b></div>
+        <div class="gov-stat"><span>Invoices pending</span><b id="gov_invoices">0</b></div>
+      </div>
+      <div class="dashboard-filterbar" id="gov_filters">
+        <div class="field"><label>Financial Year</label><select id="gov_fy"><option value="2025-26">25-26</option><option value="2026-27" selected>26-27</option><option value="2027-28">27-28</option><option value="2028-29">28-29</option><option value="2029-30">29-30</option><option value="2030-31">30-31</option><option value="2031-32">31-32</option><option value="2032-33">32-33</option></select></div>
+        <div class="field"><label>Function</label><select id="gov_function"><option value="">All functions</option><option>ASG</option><option>Information Technology</option><option>Infra</option><option>Operations</option><option>Finance</option><option>HR</option><option>Marketing</option></select></div>
+        <div class="field"><label>Status</label><select id="gov_status"><option value="">All statuses</option><option>Pending Approval</option><option>Approved</option><option>Rejected</option><option>Draft</option><option>Cancelled</option><option>Submitted - Pending Processing</option></select></div>
+        <div class="field"><label>From</label><input type="date" id="gov_from"/></div>
+        <div class="field"><label>To</label><input type="date" id="gov_to"/></div>
+        <button class="btn btn-primary" onclick="startGovernance()">Apply</button>
+        <button class="btn btn-ghost" onclick="resetGovernanceFilters()">Reset</button>
+      </div>
+      <div id="gov_dashboard"></div>
+      <div class="card" style="margin-bottom:16px" id="gov_prTableAnchor"><div class="card-head"><div class="card-head-left"><h2>Purchase Requests</h2><p>Approve, reject, and inspect linked PO usage.</p></div></div><div class="card-body" style="overflow:auto"><table class="gov-table"><thead><tr><th>Number</th><th>Type</th><th>Amount</th><th>Used / Remaining</th><th>Status</th><th>Action</th></tr></thead><tbody id="gov_prRows"></tbody></table></div></div>
+      <div class="card" style="margin-bottom:16px"><div class="card-head"><div class="card-head-left"><h2>Purchase Orders</h2><p>Review, approve, or cancel orders.</p></div></div><div class="card-body" style="overflow:auto"><table class="gov-table"><thead><tr><th>Number</th><th>PR</th><th>Vendor</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead><tbody id="gov_poRows"></tbody></table></div></div>
+      <div class="card"><div class="card-head"><div class="card-head-left"><h2>Invoices</h2><p>Submitted vendor invoices and budget consumption.</p></div></div><div class="card-body" style="overflow:auto"><table class="gov-table"><thead><tr><th>Reference</th><th>Vendor</th><th>Invoice No.</th><th>Budget Code</th><th>Amount</th><th>Status</th></tr></thead><tbody id="gov_invRows"></tbody></table></div></div>
+    </div>
+  </div>
+
+  <!-- ══ PR FORM ══ -->
+  <div class="view" id="viewPR">
+    <div class="page">
+      <div class="page-title-row">
+        <div><h1>New Purchase Request</h1><p>Complete all sections and submit for approval</p></div>
+        <div class="draft-badge">DRAFT — unsaved</div>
+      </div>
+      <div class="stepper-bar">
+        <div class="stepper-inner" id="pr-stepper">
+          <div class="step-tab active" onclick="prGo(0)"><span class="snum">01</span>Basic Info</div>
+          <div class="step-tab" onclick="prGo(1)"><span class="snum">02</span>Budget</div>
+          <div class="step-tab" onclick="prGo(2)"><span class="snum">03</span>PR Amount</div>
+          <div class="step-tab" onclick="prGo(3)"><span class="snum">04</span>Validity</div>
+          <div class="step-tab" onclick="prGo(4)"><span class="snum">05</span>Additional</div>
+          <div class="step-tab" onclick="prGo(5)"><span class="snum">06</span>Scope of Work</div>
+          <div class="step-tab" onclick="prGo(6)"><span class="snum">07</span>Review</div>
+          <div class="step-tab"><span class="snum">08</span>Done</div>
+        </div>
+        <div class="progress-strip"><div class="progress-fill" id="pr-prog" style="width:12.5%"></div></div>
+      </div>
+
+      <!-- PR Step 1 -->
+      <div class="step-panel active" id="pr-panel-0">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>PR Basic Information</h2><p>Fields marked * are mandatory. Dropdowns populated from master data.</p></div><div class="step-indicator">Step 1 of 7</div></div>
+          <div class="card-body">
+            <div class="form-row">
+              <div class="field"><label>Company <span class="req">*</span></label>
+                <select id="pr_company"><option selected>UTCL</option><option>ICL</option><option>KIL</option></select>
+                <span class="field-hint">Select the Company name</span></div>
+              <div class="field"><label>Financial Year <span class="req">*</span></label>
+                <select id="pr_fy"><option selected>26-27</option><option>27-28</option><option>28-29</option><option>29-30</option><option>30-31</option><option>31-32</option><option>32-33</option></select>
+                <span class="field-hint">Auto-populated by the portal</span></div>
+            </div>
+            <div class="form-row">
+              <div class="field"><label>Cost Type <span class="req">*</span></label>
+                <div class="radio-group" style="margin-top:6px">
+                  <label><input type="radio" name="pr_costtype_r" value="OPEX" checked/><span>OPEX</span></label>
+                  <label><input type="radio" name="pr_costtype_r" value="CAPEX" disabled/><span>CAPEX (disabled for now)</span></label>
+                </div>
+                <input type="hidden" id="pr_costtype" value="OPEX"/>
+                <span class="field-hint">OPEX &rarr; Service - Non BSR in SAP PR Category</span></div>
+              <div class="field"><label>Function <span class="req">*</span></label>
+                <select id="pr_function" onchange="prPopulateCategories()"></select>
+                <span class="field-hint">Pre-decided per login master (only Marketing selectable)</span></div>
+            </div>
+            <div class="form-row">
+              <div class="field"><label>Category <span class="req">*</span></label>
+                <select id="pr_category" onchange="prPopulateLineItems()"></select></div>
+              <div class="field"><label>Line Item <span class="req">*</span></label>
+                <select id="pr_lineitem" onchange="prBudgetChanged()"></select></div>
+            </div>
+            <div class="form-row">
+              <div class="field computed-field"><div class="computed-label"><label>Unique Budget Code</label><span class="ctag">auto</span></div>
+                <input type="text" id="pr_bcode" readonly placeholder="Auto-generated"/></div>
+              <div class="field"><label>Short Text <span class="req">*</span></label>
+                <input type="text" id="pr_shorttext" placeholder="Short description of the line item"/></div>
+            </div>
+          </div>
+          <div class="card-foot"><span class="foot-left"><span class="req">*</span> Mandatory</span><button class="btn btn-primary" onclick="prNext()">Next &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- PR Step 2 -->
+      <div class="step-panel" id="pr-panel-1">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Budget Validation</h2><p>System-fetched based on Function / Category / Line Item</p></div><div class="step-indicator">Step 2 of 7</div></div>
+          <div class="card-body">
+            <div class="notice info" id="pr_budgetNotice"><strong>Auto-fetched</strong> Budget details will refresh from Function / Category / Line Item.</div>
+            <table class="budget-table">
+              <tr><td>Allocated Budget</td><td id="pr_allocated_disp">&#8377; 25,00,000</td></tr>
+              <tr class="used"><td>Utilized Budget</td><td id="pr_utilized_disp">&#8377; 14,50,000</td></tr>
+              <tr class="avail"><td>Available Budget</td><td id="pr_available_disp">&#8377; 10,50,000</td></tr>
+            </table>
+            <div class="budget-bar-wrap"><div class="budget-bar-fill" id="pr_budgetBar" style="width:58%"></div></div>
+            <div class="budget-bar-meta"><span>&#8377; 0</span><span id="pr_budgetPct">58% utilized</span><span id="pr_budgetTotal">&#8377; 25,00,000</span></div>
+            <div class="notice ok" id="pr_budgetStatus" style="margin-top:14px"><strong>Within budget.</strong> You may proceed to enter PR amount.</div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="prPrev()">&lsaquo; Back</button><button class="btn btn-primary" onclick="prNext()">Next &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- PR Step 3 -->
+      <div class="step-panel" id="pr-panel-2">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>PR Amount Details</h2><p>PR Value = Quantity &times; Rate (auto-calculated, non-editable)</p></div><div class="step-indicator">Step 3 of 7</div></div>
+          <div class="card-body">
+            <div class="form-row cols-3">
+              <div class="field"><label>Units <span class="req">*</span></label>
+                <select id="pr_units"><option value="">â€” Select â€”</option><option selected>Nos</option><option>Licenses</option><option>Months</option><option>Years</option><option>Lumpsum</option></select>
+                <span class="field-hint">Use 1 for lump-sum services</span></div>
+              <div class="field"><label>Quantity <span class="req">*</span></label><input type="number" id="pr_qty" placeholder="e.g. 50" min="1" oninput="calcPR()"/><span class="field-hint">No. of units / licenses</span></div>
+              <div class="field"><label>Rate (&#8377;) <span class="req">*</span></label><input type="number" id="pr_rate" placeholder="e.g. 12000" min="0" oninput="calcPR()"/><span class="field-hint">Per-unit cost in INR</span></div>
+            </div>
+            <div class="sub-head">Computed value</div>
+            <div class="form-row cols-1">
+              <div class="field computed-field"><div class="computed-label"><label>PR Value (&#8377;)</label><span class="ctag">auto</span></div>
+                <input type="text" id="pr_value" readonly placeholder="0.00"/>
+                <span class="field-note">Read-only &mdash; Quantity &times; Rate</span></div>
+            </div>
+            <div id="pr_budgetErr" style="display:none"><div class="notice error"><strong>Budget Exceeded.</strong> Reduce amount or raise a budget revision.</div></div>
+            <div class="sub-head">Allocation + Funding</div>
+            <div class="form-row cols-1">
+              <div class="field">
+                <label>Is this a shared expense allocated to other portfolios? <span class="req">*</span></label>
+                <div class="radio-group" style="margin-top:6px">
+                  <label onclick="prToggleShared('no')"><input type="radio" name="pr_shared" id="pr_shared_no" checked/><span>No</span></label>
+                  <label onclick="prToggleShared('yes')"><input type="radio" name="pr_shared" id="pr_shared_yes"/><span>Yes</span></label>
+                </div>
+              </div>
+            </div>
+            <div id="pr_allocBox" style="display:none">
+              <div class="notice info"><strong>Allocation required.</strong> Add each portfolio/function share. Total allocation must equal PR value and remain within available budget.</div>
+              <table class="ms-table">
+                <thead><tr><th>Function</th><th>Category</th><th>Line Item</th><th>Allocated</th><th>Utilised</th><th>Available</th><th>Unique Code</th><th>%</th><th>Amount</th><th></th></tr></thead>
+                <tbody id="prAllocBody"></tbody>
+              </table>
+              <button class="btn btn-ghost btn-sm" style="margin-top:10px" onclick="prAddAllocRow()">+ Add Level</button>
+              <div class="ms-total" id="prAllocTotal">Total: 0%</div>
+            </div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="prPrev()">&lsaquo; Back</button><button class="btn btn-primary" id="prBtnS3" onclick="prNext()">Next &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- PR Step 4 -->
+      <div class="step-panel" id="pr-panel-3">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Validity Period</h2><p>Delivery date = End Date + 3 months (auto)</p></div><div class="step-indicator">Step 4 of 7</div></div>
+          <div class="card-body">
+            <div class="form-row">
+              <div class="field"><label>Start Date <span class="req">*</span></label><input type="date" id="pr_start" oninput="calcPRDates()"/></div>
+              <div class="field"><label>End Date <span class="req">*</span></label><input type="date" id="pr_end" oninput="calcPRDates()"/></div>
+            </div>
+            <div class="sub-head">Computed value</div>
+            <div class="form-row cols-1">
+              <div class="field computed-field"><div class="computed-label"><label>Delivery Date</label><span class="ctag">auto</span></div>
+                <input type="text" id="pr_delivery" readonly placeholder="End Date + 3 months"/>
+                <span class="field-note">Non-editable &mdash; End Date + 3 months</span></div>
+            </div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="prPrev()">&lsaquo; Back</button><button class="btn btn-primary" onclick="prNext()">Next &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- PR Step 5 -->
+      <div class="step-panel" id="pr-panel-4">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Additional Details</h2><p>Tax, cost centre, internal order, and G/L details</p></div><div class="step-indicator">Step 5 of 7</div></div>
+          <div class="card-body">
+            <div class="sub-head">SAP Item Details <span style="font-weight:400;color:var(--text3);text-transform:none;letter-spacing:0">— auto-populated from Masters</span></div>
+            <div class="form-row cols-3">
+              <div class="field computed-field"><div class="computed-label"><label>Item No.</label><span class="ctag">auto</span></div><input type="text" id="pr_itemno" readonly value="10"/></div>
+              <div class="field computed-field"><div class="computed-label"><label>Acct Assignment Category</label><span class="ctag">auto</span></div><input type="text" id="pr_acctcat" readonly value="Capex(P)/Opex(K)"/></div>
+              <div class="field computed-field"><div class="computed-label"><label>Item Category</label><span class="ctag">auto</span></div><input type="text" id="pr_itemcat" readonly value="D"/></div>
+            </div>
+            <div class="form-row cols-3">
+              <div class="field computed-field"><div class="computed-label"><label>Purchase Group</label><span class="ctag">auto</span></div><input type="text" id="pr_pgroup" readonly value="C06"/></div>
+              <div class="field computed-field"><div class="computed-label"><label>Department</label><span class="ctag">auto</span></div><input type="text" id="pr_dept" readonly value="ITM"/></div>
+              <div class="field computed-field"><div class="computed-label"><label>Tracking No.</label><span class="ctag">auto</span></div><input type="text" id="pr_trackno" readonly value="UCES480718"/></div>
+            </div>
+            <div class="form-row cols-3">
+              <div class="field computed-field"><div class="computed-label"><label>Purchase Organisation</label><span class="ctag">auto</span></div><input type="text" id="pr_purchorg" readonly value="6000"/></div>
+              <div class="field computed-field"><div class="computed-label"><label>Material Group</label><span class="ctag">auto</span></div><input type="text" id="pr_matgroup" readonly value="Services"/></div>
+              <div class="field computed-field"><div class="computed-label"><label>Plant</label><span class="ctag">auto</span></div><input type="text" id="pr_plant" readonly value="CMO Office"/></div>
+            </div>
+            <div class="sub-head" style="margin-top:6px">Tax, Cost Centre &amp; Financials</div>
+            <div class="form-row">
+              <div class="field"><label>Tax Applicability <span class="req">*</span></label>
+                <select id="pr_tax"><option selected>PAN India Service</option><option>Restricted to Maharashtra</option></select>
+                <span class="field-hint">Based on the service and the vendor</span></div>
+              <div class="field" id="pr_cc_wrap"><label>Cost Centre <span class="req">*</span></label>
+                <select id="pr_cc"></select>
+                <span class="field-hint">Choose the appropriate cost centre</span></div>
+              <div class="field" id="pr_cc_auto_wrap" style="display:none"><label>Cost Centre</label>
+                <input type="text" id="pr_cc_auto" readonly/>
+                <span class="field-hint">Auto-populated for this function</span></div>
+            </div>
+            <div class="form-row cols-1" id="pr_io_wrap" style="display:none">
+              <div class="field"><label>Internal Order No. <span class="req">*</span></label>
+                <select id="pr_io"></select>
+                <span class="field-hint">For Marketing / UTEC — choose the appropriate cost centre</span></div>
+            </div>
+            <div class="form-row">
+              <div class="field computed-field"><div class="computed-label"><label>G/L Account</label><span class="ctag">auto</span></div>
+                <input type="text" id="pr_gl" readonly placeholder="Auto by function"/></div>
+              <div class="field computed-field"><div class="computed-label"><label>CO Area</label><span class="ctag">auto</span></div>
+                <input type="text" id="pr_coarea" readonly placeholder="Auto by function"/></div>
+            </div>
+            <div class="form-row cols-1" style="margin-top:4px">
+              <div class="field"><label>Remarks <span class="opt">(optional)</span></label>
+                <textarea id="pr_remarks" placeholder="Add remarks, if required..."></textarea></div>
+            </div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="prPrev()">&lsaquo; Back</button><button class="btn btn-primary" onclick="prNext()">Next &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- PR Step 6 -->
+      <div class="step-panel" id="pr-panel-5">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Scope of Work</h2><p>Upload SoW — summary extracted automatically</p></div><div class="step-indicator">Step 6 of 7</div></div>
+          <div class="card-body">
+            <div class="upload-box">
+              <input type="file" id="pr_sow" accept=".pdf,.doc,.docx" onchange="prHandleFile(event)"/>
+              <p><strong>Click to browse</strong> or drag and drop</p>
+              <p class="sub">PDF, DOC, DOCX &nbsp;&middot;&nbsp; Max size per IT policy</p>
+            </div>
+            <div id="pr_fileOk" style="display:none;margin-top:10px"><div class="notice ok" id="pr_fileOkTxt"></div></div>
+            <div id="pr_aiBox" style="display:none;margin-top:14px">
+              <div style="border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
+                <div style="background:var(--surf2);border-bottom:1px solid var(--border);padding:8px 12px;font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;justify-content:space-between">Document Summary — AI Generated <span style="font-weight:400;color:var(--text3);text-transform:none;letter-spacing:0">Editable before submission</span></div>
+                <textarea id="pr_aiText" rows="4" placeholder="Upload a Scope of Work document above — the description will be generated from it and can be edited here." style="border:none;width:100%;padding:10px 12px;font-size:12.5px;font-family:var(--font);color:var(--text);line-height:1.6"></textarea>
+              </div>
+            </div>
+            <div class="notice info" id="pr_skipNote" style="margin-top:14px"><strong>Note:</strong> You may proceed without a SoW if not applicable at this stage.</div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="prPrev()">&lsaquo; Back</button><button class="btn btn-primary" onclick="prBuildReview();prCur=6;updatePRStepper();showPanel('pr',6)">Review &amp; Submit &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- PR Step 7 Review -->
+      <div class="step-panel" id="pr-panel-6">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Review Before Submission</h2><p>Verify all details. Use Edit to return to any section.</p></div><div class="step-indicator">Step 7 of 7</div></div>
+          <div class="card-body" id="pr_reviewBody"></div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="prPrev()">&lsaquo; Back</button><button class="btn btn-submit" onclick="prSubmit()">Submit for Approval</button></div>
+        </div>
+      </div>
+
+      <!-- PR Step 8 Done -->
+      <div class="step-panel" id="pr-panel-7">
+        <div class="card">
+          <div class="success-wrap">
+            <h2>PR Submitted</h2>
+            <p>Saved and sent to the approval workflow.</p>
+            <div class="po-num-box" id="pr_numDisplay">PR/2025-26/000124</div><br>
+            <span class="status-tag" id="pr_statusTag">PENDING APPROVAL</span>
+            <div class="review-block" style="text-align:left;max-width:420px;margin:0 auto 20px">
+              <div class="review-block-head"><h4>What happens next</h4></div>
+              <dl class="review-dl">
+                <dt>Approvers notified</dt><dd id="pr_routeText">Automatically via email &amp; portal</dd>
+                <dt>Status</dt><dd id="pr_pendingWith">Pending L1 Approval</dd>
+                <dt>SLA</dt><dd>3 working days</dd>
+                <dt>Track</dt><dd>My PRs &rarr; Open PRs</dd>
+              </dl>
+            </div>
+            <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+              <button class="btn btn-primary" onclick="startPO()">Create PO against this PR</button>
+              <button class="btn btn-ghost" onclick="goHome()">Back to Dashboard</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /viewPR -->
+
+  <!-- ══ IPR FORM (Infra / Plant User) ══ -->
+  <div class="view" id="viewIPR">
+    <div class="page">
+      <div class="page-title-row">
+        <div><h1>PR Request (Infra / Plant User)</h1><p>Plant Users — IT Team fills PR input form for infra procurement</p></div>
+        <div class="draft-badge">DRAFT — unsaved</div>
+      </div>
+      <div class="stepper-bar">
+        <div class="stepper-inner" id="ipr-stepper">
+          <div class="step-tab active" onclick="iprGo(0)"><span class="snum">01</span>Basic Info</div>
+          <div class="step-tab" onclick="iprGo(1)"><span class="snum">02</span>Line Items</div>
+          <div class="step-tab" onclick="iprGo(2)"><span class="snum">03</span>PR Amount</div>
+          <div class="step-tab" onclick="iprGo(3)"><span class="snum">04</span>Validity</div>
+          <div class="step-tab" onclick="iprGo(4)"><span class="snum">05</span>Cross-FY</div>
+          <div class="step-tab" onclick="iprGo(5)"><span class="snum">06</span>Addl Info</div>
+          <div class="step-tab" onclick="iprGo(6)"><span class="snum">07</span>Delivery</div>
+          <div class="step-tab" onclick="iprGo(7)"><span class="snum">08</span>SoW</div>
+          <div class="step-tab" onclick="iprGo(8)"><span class="snum">09</span>Financials</div>
+          <div class="step-tab" onclick="iprGo(9)"><span class="snum">10</span>Review</div>
+          <div class="step-tab"><span class="snum">11</span>Done</div>
+        </div>
+        <div class="progress-strip"><div class="progress-fill" id="ipr-prog" style="width:8.3%"></div></div>
+      </div>
+
+      <!-- IPR Step 1: Basic Information -->
+      <div class="step-panel active" id="ipr-panel-0">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Basic Information</h2><p>Financial Year auto-populated, Cost Type defaults to OPEX, Function auto-filled as Infra</p></div><div class="step-indicator">Step 1 of 10</div></div>
+          <div class="card-body">
+            <div class="form-row">
+              <div class="field"><label>Company <span class="req">*</span></label>
+                <select id="ipr_company"><option selected>UTCL</option><option>ICL</option><option>KIL</option></select>
+                <span class="field-hint">Select the Company name</span></div>
+              <div class="field"><label>Financial Year <span class="req">*</span></label>
+                <select id="ipr_fy"><option selected>26-27</option><option>27-28</option><option>28-29</option><option>29-30</option><option>30-31</option><option>31-32</option><option>32-33</option></select>
+                <span class="field-hint">Auto-populated by the portal</span></div>
+            </div>
+            <div class="form-row">
+              <div class="field"><label>Cost Type <span class="req">*</span></label>
+                <div class="radio-group" style="margin-top:6px">
+                  <label><input type="radio" name="ipr_costtype_r" value="OPEX" checked/><span>OPEX</span></label>
+                  <label><input type="radio" name="ipr_costtype_r" value="CAPEX" disabled/><span>CAPEX (disabled for now)</span></label>
+                </div>
+                <input type="hidden" id="ipr_costtype" value="OPEX"/>
+                <span class="field-hint">OPEX auto-selected</span></div>
+              <div class="field"><label>Function <span class="req">*</span></label>
+                <input type="text" id="ipr_function" value="Infra" readonly/>
+                <span class="field-hint">Infra — auto-populated by the portal</span></div>
+            </div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="goHome()">&lsaquo; Dashboard</button><button class="btn btn-primary" onclick="iprNext()">Next &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- IPR Step 2: Line Item Selection -->
+      <div class="step-panel" id="ipr-panel-1">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Line Item and Category</h2><p>Select the relevant Line item and Category — Budget Code auto-generated</p></div><div class="step-indicator">Step 2 of 10</div></div>
+          <div class="card-body">
+            <div class="form-row cols-1">
+              <div class="field"><label>Line Item and Category <span class="req">*</span></label>
+                <select id="ipr_lineitemcat" onchange="iprUpdateBudget()">
+                  <option selected>Infra + Network ( DC )</option>
+                  <option>Connectivity</option>
+                  <option>AMC/BirlaSoft</option>
+                  <option>MS Products Inc. Support</option>
+                  <option>AMC of UPS/Access point/Zify links</option>
+                  <option>Admin Expenses ( Travel/IS trainings/Stationary/Printing/Courier)</option>
+                  <option>Consumables ( Passive Network/Computer/Printer)</option>
+                  <option>Contractor Cost</option>
+                  <option>Autocad/Tekla/Steller/Adobe</option>
+                </select></div>
+            </div>
+            <div class="form-row cols-1">
+              <div class="field computed-field"><div class="computed-label"><label>Unique Budget Code</label><span class="ctag">auto</span></div>
+                <input type="text" id="ipr_bcode" readonly placeholder="Auto-generated"/></div>
+            </div>
+            <div class="form-row cols-1">
+              <div class="field"><label>Short Description <span class="req">*</span></label>
+                <textarea id="ipr_desc" placeholder="Brief description of the procurement requirement..." rows="2"></textarea></div>
+            </div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="iprPrev()">&lsaquo; Back</button><button class="btn btn-primary" onclick="iprNext()">Next &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- IPR Step 3: PR Amount Details -->
+      <div class="step-panel" id="ipr-panel-2">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>PR Amount Details</h2><p>PR Value = Quantity × Rate (auto-calculated)</p></div><div class="step-indicator">Step 3 of 10</div></div>
+          <div class="card-body">
+            <div class="form-row">
+              <div class="field"><label>Units <span class="req">*</span></label>
+                <select id="ipr_units"><option selected>Nos</option><option>Hours</option><option>Days</option><option>Months</option></select>
+                <span class="field-hint">If Nos not there, input 1</span></div>
+              <div class="field"><label>Quantity <span class="req">*</span></label>
+                <input type="number" id="ipr_qty" placeholder="e.g. 50" min="1" oninput="iprCalc()"/></div>
+            </div>
+            <div class="form-row">
+              <div class="field"><label>Rate (&#8377;) <span class="req">*</span></label>
+                <input type="number" id="ipr_rate" placeholder="e.g. 12000" min="0" oninput="iprCalc()"/></div>
+              <div class="field computed-field"><div class="computed-label"><label>PR Value (&#8377;)</label><span class="ctag">auto</span></div>
+                <input type="text" id="ipr_value" readonly placeholder="0.00"/></div>
+            </div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="iprPrev()">&lsaquo; Back</button><button class="btn btn-primary" onclick="iprNext()">Next &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- IPR Step 4: Validity Period -->
+      <div class="step-panel" id="ipr-panel-3">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Validity Period</h2><p>Delivery date auto-set to End Date + 3 months</p></div><div class="step-indicator">Step 4 of 10</div></div>
+          <div class="card-body">
+            <div class="form-row">
+              <div class="field"><label>Start Date <span class="req">*</span></label><input type="date" id="ipr_start" oninput="iprCalcDates()"/></div>
+              <div class="field"><label>End Date <span class="req">*</span></label><input type="date" id="ipr_end" oninput="iprCalcDates()"/></div>
+            </div>
+            <div class="sub-head">Computed value</div>
+            <div class="form-row cols-1">
+              <div class="field computed-field"><div class="computed-label"><label>Delivery Date</label><span class="ctag">auto</span></div>
+                <input type="text" id="ipr_delivery" readonly placeholder="End Date + 3 months"/></div>
+            </div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="iprPrev()">&lsaquo; Back</button><button class="btn btn-primary" onclick="iprNext()">Next &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- IPR Step 5: Cross-FY / Long-Term Validation -->
+      <div class="step-panel" id="ipr-panel-4">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Cross-FY / Long-Term Validation</h2><p>System checks if validity spans multiple financial years</p></div><div class="step-indicator">Step 5 of 10</div></div>
+          <div class="card-body">
+            <div class="notice info" id="ipr-fy-notice"><strong>Checking...</strong> Analysing date range...</div>
+            <div id="ipr-fy-result" style="display:none">
+              <div id="ipr-fy-same" style="display:none">
+                <div class="notice ok"><strong>Same FY.</strong> Standard processing, no cross-year allocation needed.</div>
+              </div>
+              <div id="ipr-fy-cross" style="display:none">
+                <div class="notice warn"><strong>Cross-FY Detected.</strong> Allocate budget year-wise below.</div>
+                <div class="sub-head" style="margin-top:14px">Year-wise Budget Allocation</div>
+                <div id="ipr-budget-years"></div>
+                <button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="iprAddYear()">+ Add Year Level</button>
+                <div id="ipr-budget-summary" style="margin-top:12px;padding:10px;background:var(--surf2);border-radius:var(--r);display:none">
+                  <strong>Total Allocated: &#8377;</strong> <span id="ipr-total-alloc">0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="iprPrev()">&lsaquo; Back</button><button class="btn btn-primary" id="ipr-fy-next" disabled onclick="iprNext()">Next &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- IPR Step 6: Additional Information -->
+      <div class="step-panel" id="ipr-panel-5">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Additional Information</h2><p>Procurement classification and organisational details</p></div><div class="step-indicator">Step 6 of 10</div></div>
+          <div class="card-body">
+            <p class="field-hint" style="margin-bottom:10px">Additional Information to be input by the user.</p>
+            <div class="form-row cols-3">
+              <div class="field"><label>Item No. <span class="req">*</span></label>
+                <input type="text" id="ipr_itemno" value="10"/></div>
+              <div class="field"><label>Acct Assignment Category <span class="req">*</span></label>
+                <input type="text" id="ipr_acctcat" value="Capex(P)/Opex(K)"/></div>
+              <div class="field"><label>Item Category <span class="req">*</span></label>
+                <input type="text" id="ipr_itemcat" value="D"/></div>
+            </div>
+            <div class="form-row cols-3">
+              <div class="field"><label>Purchase Group <span class="req">*</span></label>
+                <input type="text" id="ipr_pgroup" value="C06"/></div>
+              <div class="field"><label>Department <span class="req">*</span></label>
+                <input type="text" id="ipr_dept" value="ITM"/></div>
+              <div class="field"><label>Tracking No.</label>
+                <input type="text" id="ipr_tracking" value="UCES480718"/></div>
+            </div>
+            <div class="form-row cols-3">
+              <div class="field"><label>Purchase Organisation <span class="req">*</span></label>
+                <input type="text" id="ipr_purchorg" value="6000"/></div>
+              <div class="field"><label>Material Group <span class="req">*</span></label>
+                <input type="text" id="ipr_matgroup" value="Services"/></div>
+              <div class="field"><label>Plant <span class="req">*</span></label>
+                <input type="text" id="ipr_plant" value="CMO Office"/></div>
+            </div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="iprPrev()">&lsaquo; Back</button><button class="btn btn-primary" onclick="iprNext()">Next &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- IPR Step 7: Delivery & Tax -->
+      <div class="step-panel" id="ipr-panel-6">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Delivery &amp; Tax</h2><p>Delivery date auto-calculated, tax applicability</p></div><div class="step-indicator">Step 7 of 10</div></div>
+          <div class="card-body">
+            <div class="form-row">
+              <div class="field computed-field"><div class="computed-label"><label>Delivery Date</label><span class="ctag">auto</span></div>
+                <input type="text" id="ipr_delivery_disp" readonly placeholder="From Validity Period"/></div>
+              <div class="field"><label>Tax Applicability <span class="req">*</span></label>
+                <select id="ipr_tax"><option selected>PAN India Service</option><option>Restricted to Maharashtra</option></select></div>
+            </div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="iprPrev()">&lsaquo; Back</button><button class="btn btn-primary" onclick="iprNext()">Next &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- IPR Step 8: Scope of Work -->
+      <div class="step-panel" id="ipr-panel-7">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Scope of Work</h2><p>Upload SoW — AI generates description, review and edit</p></div><div class="step-indicator">Step 8 of 10</div></div>
+          <div class="card-body">
+            <div class="upload-box">
+              <input type="file" id="ipr_sow" accept=".pdf,.doc,.docx" onchange="iprHandleFile(event)"/>
+              <p><strong>Click to browse</strong> or drag and drop</p>
+              <p class="sub">PDF, DOC, DOCX</p>
+            </div>
+            <div id="ipr_fileOk" style="display:none;margin-top:10px"><div class="notice ok" id="ipr_fileOkTxt"></div></div>
+            <div id="ipr_aiBox" style="display:none;margin-top:14px">
+              <div style="border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
+                <div style="background:var(--surf2);border-bottom:1px solid var(--border);padding:8px 12px;font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;justify-content:space-between">Document Summary — AI Generated <span style="font-weight:400;color:var(--text3);text-transform:none;letter-spacing:0">Editable before submission</span></div>
+                <textarea id="ipr_aiText" rows="4" style="border:none;width:100%;padding:10px 12px;font-size:12.5px;font-family:var(--font);color:var(--text);line-height:1.6" placeholder="AI-generated summary will appear here after upload..."></textarea>
+              </div>
+            </div>
+            <div class="notice info" style="margin-top:10px"><strong>Note:</strong> You may proceed without a SoW if not applicable.</div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="iprPrev()">&lsaquo; Back</button><button class="btn btn-primary" onclick="iprNext()">Next &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- IPR Step 9: Financial Details -->
+      <div class="step-panel" id="ipr-panel-8">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Financial Details</h2><p>Cost Centre, G/L Account and CO Area</p></div><div class="step-indicator">Step 9 of 10</div></div>
+          <div class="card-body">
+            <div class="form-row">
+              <div class="field"><label>Cost Centre <span class="req">*</span></label>
+                <input type="text" id="ipr_cc" placeholder="Mention the relevant Cost Centre"/></div>
+              <div class="field"><label>G/L Account <span class="req">*</span></label>
+                <input type="text" id="ipr_gl" placeholder="Mention the relevant G/L Account"/></div>
+            </div>
+            <div class="form-row cols-1">
+              <div class="field"><label>CO Area <span class="req">*</span></label>
+                <input type="text" id="ipr_coarea" placeholder="Mention the relevant CO Area"/></div>
+            </div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="iprPrev()">&lsaquo; Back</button><button class="btn btn-primary" onclick="iprBuildReview();iprCur=9;updateIPRStepper();showPanel('ipr',9)">Review &amp; Submit &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- IPR Step 10: Review -->
+      <div class="step-panel" id="ipr-panel-9">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Review Before Submission</h2><p>Verify all details. Use Edit to return to any section.</p></div><div class="step-indicator">Step 10 of 10</div></div>
+          <div class="card-body" id="ipr_reviewBody"></div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="iprPrev()">&lsaquo; Back</button><button class="btn btn-submit" onclick="iprSubmit()">Submit for Approval</button></div>
+        </div>
+      </div>
+
+      <!-- IPR Step 11: Done -->
+      <div class="step-panel" id="ipr-panel-10">
+        <div class="card">
+          <div class="success-wrap">
+            <h2>PR Submitted Successfully</h2>
+            <p>Your infra PR has been saved and routed for approval.</p>
+            <div class="po-num-box" id="ipr_numDisplay">IPR/2025-26/000001</div><br>
+            <span class="status-tag">PENDING APPROVAL — Routed to Pankaj Sir</span>
+            <div class="review-block" style="text-align:left;max-width:420px;margin:0 auto 20px">
+              <div class="review-block-head"><h4>Next Steps</h4></div>
+              <dl class="review-dl">
+                <dt>Approver</dt><dd>Pankaj Sir — L1 Approval</dd>
+                <dt>Status</dt><dd>Pending L1 Approval</dd>
+                <dt>SLA</dt><dd>3 working days</dd>
+                <dt>On Approval</dt><dd>PR will be created in SAP automatically via BAPI</dd>
+              </dl>
+            </div>
+            <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+              <button class="btn btn-primary" onclick="startIPR()">Create Another PR</button>
+              <button class="btn btn-ghost" onclick="goHome()">Back to Dashboard</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /viewIPR -->
+
+  <!-- ══ PO FORM ══ -->
+  <div class="view" id="viewPO">
+    <div class="page">
+      <div class="page-title-row">
+        <div><h1>New Purchase Order</h1><p>Create a PO against an approved PR</p></div>
+        <div class="draft-badge">DRAFT — unsaved</div>
+      </div>
+      <div class="stepper-bar">
+        <div class="stepper-inner" id="po-stepper">
+          <div class="step-tab active" onclick="poGo(0)"><span class="snum">01</span>Vendor</div>
+          <div class="step-tab" onclick="poGo(1)"><span class="snum">02</span>PO Amount</div>
+          <div class="step-tab" onclick="poGo(2)"><span class="snum">03</span>Payment</div>
+          <div class="step-tab" onclick="poGo(3)"><span class="snum">04</span>Validity</div>
+          <div class="step-tab" onclick="poGo(4)"><span class="snum">05</span>Inco Terms</div>
+          <div class="step-tab" onclick="poGo(5)"><span class="snum">06</span>Negotiation</div>
+          <div class="step-tab" onclick="poGo(6)"><span class="snum">07</span>PO Info</div>
+          <div class="step-tab" onclick="poGo(7)"><span class="snum">08</span>Review</div>
+          <div class="step-tab"><span class="snum">09</span>Done</div>
+        </div>
+        <div class="progress-strip"><div class="progress-fill" id="po-prog" style="width:11%"></div></div>
+      </div>
+
+      <!-- PO Step 1: Vendor -->
+      <div class="step-panel active" id="po-panel-0">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Vendor Selection</h2><p>Select vendor — code, address and tax code are auto-filled from master</p></div><div class="step-indicator">Step 1 of 8</div></div>
+          <div class="card-body">
+            <div class="notice info" id="po_prNotice"><strong>Linked PR:</strong> Select an approved PR with available PO balance.</div>
+            <div class="form-row cols-1"><div class="field"><label>Approved PR <span class="req">*</span></label><select id="po_pr" onchange="selectPOPR()"><option value="">Loading approved PRs...</option></select></div></div>
+            <div class="form-row">
+              <div class="field"><label>Vendor Name <span class="req">*</span></label>
+                <select id="po_vendor" onchange="fillVendor()">
+                  <option value="">— Select Vendor —</option>
+                  <option>IBM</option>
+                  <option selected>MICROSOFT</option>
+                  <option>SAP</option>
+                  <option>BMCSPL</option>
+                  <option>ORACLE</option>
+                  <option>AUTOPLANT</option>
+                  <option>TRIDIAGNOL</option>
+                  <option value="NOT_IN_LIST">NOT IN LIST — Vendor Management Required</option>
+                </select>
+              </div>
+              <div class="field computed-field"><div class="computed-label"><label>Vendor Code</label><span class="ctag">auto</span></div>
+                <input type="text" id="po_vcode" readonly placeholder="Auto-filled"/></div>
+            </div>
+            <div class="form-row">
+              <div class="field computed-field"><div class="computed-label"><label>Vendor Address</label><span class="ctag">auto</span></div>
+                <input type="text" id="po_vaddr" readonly placeholder="Auto-filled from master"/></div>
+              <div class="field computed-field"><div class="computed-label"><label>Tax Code (GSTIN)</label><span class="ctag">auto</span></div>
+                <input type="text" id="po_vtax" readonly placeholder="Auto-filled"/></div>
+            </div>
+            <div class="notice warn" id="po_vendorWarn" style="display:none;margin-top:12px"><strong>Vendor Management required.</strong> Complete vendor onboarding before creating the PO.</div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="goHome()">&lsaquo; Dashboard</button><button class="btn btn-primary" onclick="poNext()">Next &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- PO Step 2: PO Amount -->
+      <div class="step-panel" id="po-panel-1">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>PO Amount Details</h2><p>PO Value must not exceed the approved PR Value</p></div><div class="step-indicator">Step 2 of 8</div></div>
+          <div class="card-body">
+            <div class="notice info" id="po_amountNotice"><strong>Approved PR balance:</strong> Select a PR to see its remaining PO amount.</div>
+            <div class="form-row cols-3">
+              <div class="field"><label>Units <span class="req">*</span></label>
+                <select id="po_units"><option selected>Nos</option><option>Hours</option><option>Days</option><option>Months</option></select>
+                <span class="field-hint">No. of units to be selected</span></div>
+              <div class="field"><label>Quantity <span class="req">*</span></label>
+                <input type="number" id="po_qty" placeholder="e.g. 50" min="1" oninput="calcPO()"/>
+                <span class="field-hint">If Nos not there, input 1</span></div>
+              <div class="field"><label>Rate (&#8377;) <span class="req">*</span></label>
+                <input type="number" id="po_rate" placeholder="e.g. 10000" min="0" oninput="calcPO()"/></div>
+            </div>
+            <div class="sub-head">Computed value</div>
+            <div class="form-row cols-1">
+              <div class="field computed-field"><div class="computed-label"><label>PO Value (&#8377;)</label><span class="ctag">auto</span></div>
+                <input type="text" id="po_value" readonly placeholder="0.00"/>
+                <span class="field-note">Quantity &times; Rate &mdash; must be &le; PR Value</span></div>
+            </div>
+            <div id="po_valErr" style="display:none"><div class="notice error"><strong>Exceeds PR balance.</strong> PO Value cannot be more than the selected PR's remaining PO amount.</div></div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="poPrev()">&lsaquo; Back</button><button class="btn btn-primary" id="poBtnS2" onclick="poNext()">Next &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- PO Step 3: Payment Terms -->
+      <div class="step-panel" id="po-panel-2">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Payment Terms</h2><p>Select payment structure — milestone or standard</p></div><div class="step-indicator">Step 3 of 8</div></div>
+          <div class="card-body">
+            <div class="form-row cols-1" style="margin-bottom:16px">
+              <div class="field"><label>Payment Terms <span class="req">*</span></label>
+                <select id="po_payterms" onchange="poPaymentTermsChanged()">
+                  <option selected>Monthly</option>
+                  <option>Quarterly</option>
+                  <option>Annual</option>
+                  <option>Milestone Based</option>
+                </select>
+                <span class="field-hint">Select the applicable and the agreed payment terms</span></div>
+            </div>
+
+            <!-- Milestone payment (shown when Payment Terms = Milestone Based) -->
+            <div id="payMS" style="display:none">
+              <table class="ms-table" id="msTable">
+                <thead><tr><th>Milestone Name</th><th>% of PO Value</th><th>Amount (&#8377;)</th><th></th></tr></thead>
+                <tbody id="msTbody"></tbody>
+              </table>
+              <div id="msTotalWrap" class="ms-total" style="margin-top:6px"></div>
+              <button class="btn btn-ghost btn-sm" style="margin-top:10px" onclick="addMilestone()">+ Add Milestone</button>
+            </div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="poPrev()">&lsaquo; Back</button><button class="btn btn-primary" onclick="poNext()">Next &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- PO Step 4: Validity -->
+      <div class="step-panel" id="po-panel-3">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Validity Period</h2><p>Delivery date auto-set to End Date + 3 months</p></div><div class="step-indicator">Step 4 of 8</div></div>
+          <div class="card-body">
+            <div class="form-row">
+              <div class="field"><label>Start Date <span class="req">*</span></label><input type="date" id="po_start" oninput="calcPODates()"/></div>
+              <div class="field"><label>End Date <span class="req">*</span></label><input type="date" id="po_end" oninput="calcPODates()"/></div>
+            </div>
+            <div class="sub-head">Computed value</div>
+            <div class="form-row cols-1">
+              <div class="field computed-field"><div class="computed-label"><label>Delivery Date</label><span class="ctag">auto</span></div>
+                <input type="text" id="po_delivery" readonly placeholder="End Date + 3 months"/>
+                <span class="field-note">Non-editable &mdash; End Date + 3 months</span></div>
+            </div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="poPrev()">&lsaquo; Back</button><button class="btn btn-primary" onclick="poNext()">Next &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- PO Step 5: Inco Terms -->
+      <div class="step-panel" id="po-panel-4">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Inco Terms</h2><p>Select trade terms — delivery location is auto-filled</p></div><div class="step-indicator">Step 5 of 8</div></div>
+          <div class="card-body">
+            <div class="form-row">
+              <div class="field"><label>Inco Terms <span class="req">*</span></label>
+                <select id="po_inco" onchange="fillInco()">
+                  <option value="CIF" selected>CIF — Costs, insurance &amp; freight</option>
+                  <option value="DAP">DAP — Delivered at Place</option>
+                  <option value="FOB">FOB — Free on board</option>
+                  <option value="FOR">FOR — Free on Road</option>
+                </select></div>
+              <div class="field computed-field"><div class="computed-label"><label>Inco Location (Site)</label><span class="ctag">auto</span></div>
+                <input type="text" id="po_incoloc" readonly placeholder="Auto-filled from site master"/>
+                <span class="field-hint">For service transactions, choose FOR; location auto-fills as "Site"</span></div>
+            </div>
+            <div class="form-row" style="margin-top:4px">
+              <div class="field"><label>Payment Terms <span class="req">*</span></label>
+                <select id="po_payterms2">
+                  <option selected>For 30 Days</option>
+                  <option>For 45 Days</option>
+                  <option>Immediate Payment</option>
+                </select>
+                <span class="field-hint">Select the applicable and the agreed payment terms</span></div>
+            </div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="poPrev()">&lsaquo; Back</button><button class="btn btn-primary" onclick="poNext()">Next &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- PO Step 6: Negotiation -->
+      <div class="step-panel" id="po-panel-5">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Negotiation Details</h2><p>Record negotiation outcome and upload supporting documents</p></div><div class="step-indicator">Step 6 of 8</div></div>
+          <div class="card-body">
+            <div class="form-row cols-1" style="margin-bottom:16px">
+              <div class="field">
+                <label>Has negotiation been completed? <span class="req">*</span></label>
+                <div class="radio-group" style="margin-top:6px">
+                  <label onclick="toggleNeg('yes')"><input type="radio" name="negdone" id="neg_yes"/><span>Yes — Negotiation Done</span></label>
+                  <label onclick="toggleNeg('no')"><input type="radio" name="negdone" id="neg_no"/><span>No — Pending / Other Status</span></label>
+                </div>
+              </div>
+            </div>
+
+            <!-- YES branch -->
+            <div id="negYesBranch" style="display:none">
+              <div class="sub-head">Negotiation Levels</div>
+              <div id="negLevels"></div>
+              <button class="btn btn-ghost btn-sm" style="margin-bottom:16px" onclick="addNegLevel()">+ Add Negotiation Level</button>
+              <div class="form-row">
+                <div class="field"><label>Lead Negotiator <span class="req">*</span></label>
+                  <input type="text" id="neg_person" placeholder="Name of negotiator"/></div>
+                <div class="field"><label>Remarks</label>
+                  <input type="text" id="neg_remarks" placeholder="Key outcomes or notes"/></div>
+              </div>
+              <div class="field" style="margin-top:12px"><label>Upload Negotiation Documents <span class="opt">(optional)</span></label>
+                <div class="upload-box" style="padding:16px">
+                  <input type="file" id="neg_docs" accept=".pdf,.doc,.docx,.xlsx" multiple onchange="negHandleFiles(event)"/>
+                  <p style="font-size:12px"><strong>Click to attach</strong> negotiation docs, email trails, rate sheets</p>
+                  <p class="sub">PDF, DOC, XLSX supported</p>
+                </div>
+                <div id="negFilesWrap" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px"></div>
+              </div>
+            </div>
+
+            <!-- NO branch -->
+            <div id="negNoBranch" style="display:none">
+              <div class="form-row">
+                <div class="field"><label>Negotiation Status <span class="req">*</span></label>
+                  <select id="neg_status" onchange="toggleRateCard()">
+                    <option value="">— Select Status —</option>
+                    <option value="pending" selected>Negotiation Pending</option>
+                    <option value="single">Single Vendor — No Negotiation</option>
+                    <option value="ratecard">Rate Card</option>
+                  </select></div>
+              </div>
+              <!-- Rate Card sub-branch -->
+              <div id="rateCardBranch" style="display:none;margin-top:4px">
+                <div class="notice warn"><strong>Rate Card selected.</strong> Select the applicable company below.</div>
+                <div class="form-row" style="margin-top:12px">
+                  <div class="field"><label>Applicable Company <span class="req">*</span></label>
+                    <select id="neg_ratecompany">
+                      <option value="">— Select —</option>
+                      <option>ABMCPL</option>
+                      <option>BMCSPL</option>
+                      <option>UTCL</option>
+                      <option>Others</option>
+                    </select></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="poPrev()">&lsaquo; Back</button><button class="btn btn-primary" onclick="poNext()">Next &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- PO Step 7: PO Info (Auto) -->
+      <div class="step-panel" id="po-panel-6">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>PO Information</h2><p>Auto-populated from PR and vendor master — read-only</p></div><div class="step-indicator">Step 7 of 8</div></div>
+          <div class="card-body">
+            <div class="notice info"><strong>Auto-filled</strong> based on PR details and vendor master data. These fields are non-editable.</div>
+            <div class="form-row">
+              <div class="field computed-field"><div class="computed-label"><label>PO Category</label><span class="ctag">auto</span></div>
+                <input type="text" readonly value="Software &amp; Licenses — OPEX"/></div>
+              <div class="field computed-field"><div class="computed-label"><label>Header Text</label><span class="ctag">auto</span></div>
+                <input type="text" readonly value="SaaS Subscriptions FY25-26 — IT Dept."/></div>
+            </div>
+            <div class="form-row">
+              <div class="field computed-field"><div class="computed-label"><label>Purchase Group</label><span class="ctag">auto</span></div>
+                <input type="text" readonly value="PG-IT-001 (IT Procurement)"/></div>
+              <div class="field computed-field"><div class="computed-label"><label>Purchase Organisation</label><span class="ctag">auto</span></div>
+                <input type="text" readonly value="ACME-INDIA-PORG"/></div>
+            </div>
+            <div class="form-row">
+              <div class="field computed-field"><div class="computed-label"><label>Company Code</label><span class="ctag">auto</span></div>
+                <input type="text" readonly value="1000 — Acme Corp India Pvt. Ltd."/></div>
+              <div class="field computed-field"><div class="computed-label"><label>Plant</label><span class="ctag">auto</span></div>
+                <input type="text" readonly value="BLR1 — Bangalore HQ"/></div>
+            </div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="poPrev()">&lsaquo; Back</button><button class="btn btn-primary" onclick="poBuildReview();poCur=7;updatePOStepper();showPanel('po',7)">Review &amp; Submit &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- PO Step 8: Review -->
+      <div class="step-panel" id="po-panel-7">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Review Before Submission</h2><p>Verify all details. Use Edit to return to any section.</p></div><div class="step-indicator">Step 8 of 8</div></div>
+          <div class="card-body" id="po_reviewBody"></div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="poPrev()">&lsaquo; Back</button><button class="btn btn-submit" onclick="poSubmit()">Submit PO for Approval</button></div>
+        </div>
+      </div>
+
+      <!-- PO Step 9: Done -->
+      <div class="step-panel" id="po-panel-8">
+        <div class="card">
+          <div class="success-wrap">
+            <h2>PO Submitted</h2>
+            <p>Saved to database, sent for approval, and queued for SAP.</p>
+            <div class="po-num-box" id="po_numDisplay">PO/2025-26/000045</div><br>
+            <span class="status-tag">PENDING APPROVAL</span>
+            <span class="sap-tag">QUEUED FOR SAP</span>
+            <div class="review-block" style="text-align:left;max-width:460px;margin:16px auto 20px">
+              <div class="review-block-head"><h4>What happens next</h4></div>
+              <dl class="review-dl">
+                <dt>Approvers notified</dt><dd>Automatically via email &amp; portal</dd>
+                <dt>SAP Integration</dt><dd>PO will be pushed to SAP once approved</dd>
+                <dt>Status</dt><dd>Pending L1 Approval</dd>
+                <dt>SLA</dt><dd>2 working days</dd>
+                <dt>Track</dt><dd>My POs &rarr; Open POs</dd>
+              </dl>
+            </div>
+            <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+              <button class="btn btn-primary" onclick="startPO()">+ New PO</button>
+              <button class="btn btn-ghost" onclick="goHome()">Back to Dashboard</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /viewPO -->
+
+  <!-- ══ INVOICE MANAGEMENT FORM ══ -->
+  <div class="view" id="viewINV">
+    <div class="page">
+      <div class="page-title-row">
+        <div><h1>Invoice Management</h1><p>Governance Team — Validate and submit invoices against budget</p></div>
+        <div class="draft-badge">DRAFT — unsaved</div>
+      </div>
+      <div class="stepper-bar">
+        <div class="stepper-inner" id="inv-stepper">
+          <div class="step-tab active" onclick="invGo(0)"><span class="snum">01</span>Basic Info</div>
+          <div class="step-tab" onclick="invGo(1)"><span class="snum">02</span>Budget Info</div>
+          <div class="step-tab" onclick="invGo(2)"><span class="snum">03</span>Description</div>
+          <div class="step-tab" onclick="invGo(3)"><span class="snum">04</span>Invoice Details</div>
+          <div class="step-tab" onclick="invGo(4)"><span class="snum">05</span>Dup Check</div>
+          <div class="step-tab" onclick="invGo(5)"><span class="snum">06</span>Budget Valid</div>
+          <div class="step-tab" onclick="invGo(6)"><span class="snum">07</span>Review</div>
+          <div class="step-tab"><span class="snum">08</span>Done</div>
+        </div>
+        <div class="progress-strip"><div class="progress-fill" id="inv-prog" style="width:11%"></div></div>
+      </div>
+
+      <!-- INV Step 1: Basic Information -->
+      <div class="step-panel active" id="inv-panel-0">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Basic Information</h2><p>Financial Year auto-populated, Cost Type defaults to OPEX</p></div><div class="step-indicator">Step 1 of 7</div></div>
+          <div class="card-body">
+            <div class="form-row">
+              <div class="field"><label>Vendor Name <span class="req">*</span></label>
+                <select id="inv_vendor"><option value="">— Select Vendor —</option><option>Acme Corp</option><option>Globex Inc</option><option>Initech</option><option>Umbrella Co</option><option>Cyberdyne Systems</option><option>Wayne Enterprises</option></select></div>
+              <div class="field"><label>Financial Year <span class="req">*</span></label>
+                <select id="inv_fy"><option selected>26-27</option><option>27-28</option><option>28-29</option><option>29-30</option><option>30-31</option><option>31-32</option><option>32-33</option></select>
+                <span class="field-hint">Auto-populated by the portal</span></div>
+            </div>
+            <div class="form-row">
+              <div class="field"><label>Cost Type <span class="req">*</span></label>
+                <div class="radio-group" style="margin-top:6px">
+                  <label><input type="radio" name="inv_costtype_r" value="OPEX" checked/><span>OPEX</span></label>
+                  <label><input type="radio" name="inv_costtype_r" value="CAPEX" disabled/><span>CAPEX (disabled for now)</span></label>
+                </div>
+                <input type="hidden" id="inv_costtype" value="OPEX"/>
+                <span class="field-hint">OPEX &rarr; Service - Non BSR in SAP PR Category</span></div>
+              <div class="field"><label>Function <span class="req">*</span></label>
+                <select id="inv_function" onchange="invPopulateBudgetCats()">
+                  <option selected>ASG</option><option>MFG</option><option>MKT</option><option>INFRA</option><option>INFOSEC</option><option>RMC</option><option>BPD</option><option>UTEC</option>
+                </select>
+                <span class="field-hint">Relevant Function to be selected</span></div>
+            </div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="goHome()">&lsaquo; Dashboard</button><button class="btn btn-primary" onclick="invNext()">Next &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- INV Step 2: Budget Information -->
+      <div class="step-panel" id="inv-panel-1">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Budget Information</h2><p>Select Category and Line Item — Budget Code auto-generated</p></div><div class="step-indicator">Step 2 of 7</div></div>
+          <div class="card-body">
+            <div class="form-row">
+              <div class="field"><label>Category <span class="req">*</span></label>
+                <select id="inv_category" onchange="invBudgetChanged()"><option value="">— Select Category —</option></select></div>
+              <div class="field"><label>Line Item <span class="req">*</span></label>
+                <select id="inv_lineitem" onchange="invUpdateBudgetDisplay()"><option value="">— Select Line Item —</option></select></div>
+            </div>
+            <div class="form-row cols-1">
+              <div class="field computed-field"><div class="computed-label"><label>Unique Budget Code</label><span class="ctag">auto</span></div>
+                <input type="text" id="inv_bcode" readonly placeholder="Auto-generated"/></div>
+            </div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="invPrev()">&lsaquo; Back</button><button class="btn btn-primary" onclick="invNext()">Next &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- INV Step 3: Description & Budget -->
+      <div class="step-panel" id="inv-panel-2">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Description &amp; Budget</h2><p>Budget amounts auto-populated from selected Category / Line Item</p></div><div class="step-indicator">Step 3 of 7</div></div>
+          <div class="card-body">
+            <div class="form-row cols-1">
+              <div class="field"><label>Short Text / Description <span class="req">*</span></label>
+                <textarea id="inv_desc" placeholder="Describe the invoice purpose..."></textarea></div>
+            </div>
+            <div class="sub-head">Budget Details — Auto-populated</div>
+            <table class="budget-table">
+              <tr><td>Allocated Budget</td><td id="inv_allocated_disp">—</td></tr>
+              <tr class="used"><td>Budget Utilized</td><td id="inv_utilized_disp">—</td></tr>
+              <tr class="avail"><td>Available Budget</td><td id="inv_available_disp">—</td></tr>
+            </table>
+            <div class="form-row cols-1" style="margin-top:12px">
+              <div class="field"><label>Service Entry Number <span class="req">*</span></label>
+                <input type="text" id="inv_ser" placeholder="e.g. SEN-2025-00123"/></div>
+            </div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="invPrev()">&lsaquo; Back</button><button class="btn btn-primary" onclick="invNext()">Next &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- INV Step 4: Invoice Details -->
+      <div class="step-panel" id="inv-panel-3">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Invoice Details</h2><p>Enter invoice reference and amount</p></div><div class="step-indicator">Step 4 of 7</div></div>
+          <div class="card-body">
+            <div class="form-row">
+              <div class="field"><label>Invoice Number <span class="req">*</span></label>
+                <input type="text" id="inv_number" placeholder="e.g. INV-2025-001"/></div>
+              <div class="field"><label>Invoice Amount (&#8377;) <span class="req">*</span></label>
+                <input type="number" id="inv_amount" placeholder="0" min="0"/></div>
+            </div>
+            <div class="form-row">
+              <div class="field"><label>Service Period From <span class="req">*</span></label>
+                <input type="date" id="inv_svc_from"/></div>
+              <div class="field"><label>Service Period To <span class="req">*</span></label>
+                <input type="date" id="inv_svc_to"/></div>
+            </div>
+            <div class="form-row cols-1">
+              <div class="field"><label>Invoice Date <span class="req">*</span></label>
+                <input type="date" id="inv_date"/></div>
+            </div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="invPrev()">&lsaquo; Back</button><button class="btn btn-primary" onclick="invNext()">Next &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- INV Step 5: Duplicate Check -->
+      <div class="step-panel" id="inv-panel-4">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Duplicate Invoice Check</h2><p>System checks Vendor + Invoice No. + Invoice Date</p></div><div class="step-indicator">Step 5 of 7</div></div>
+          <div class="card-body" id="inv-dup-body">
+            <div class="notice info" id="inv-dup-notice"><strong>Checking...</strong> Verifying against existing invoice records.</div>
+            <div id="inv-dup-result" style="display:none"></div>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="invPrev()">&lsaquo; Back</button><button class="btn btn-primary" id="inv-dup-next" disabled onclick="invNext()">Next &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- INV Step 6: Budget Validation -->
+      <div class="step-panel" id="inv-panel-5">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Budget Validation</h2><p>Invoice amount vs available budget</p></div><div class="step-indicator">Step 6 of 7</div></div>
+          <div class="card-body" id="inv-bud-body">
+            <div class="notice info" id="inv-bud-notice"><strong>Validating...</strong> Checking invoice amount against available budget.</div>
+            <div id="inv-bud-result" style="display:none"></div>
+            <table class="budget-table" id="inv-bud-table" style="display:none">
+              <tr><td>Invoice Amount</td><td id="inv-bud-inv-amt">—</td></tr>
+              <tr class="used"><td>Available Budget</td><td id="inv-bud-avail">—</td></tr>
+              <tr class="avail"><td>Result</td><td id="inv-bud-result-val">—</td></tr>
+            </table>
+          </div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="invPrev()">&lsaquo; Back</button><button class="btn btn-primary" id="inv-bud-next" disabled onclick="invNext()">Next &rsaquo;</button></div>
+        </div>
+      </div>
+
+      <!-- INV Step 7: Review -->
+      <div class="step-panel" id="inv-panel-6">
+        <div class="card">
+          <div class="card-head"><div class="card-head-left"><h2>Review Before Submission</h2><p>Verify all details. Use Edit to return to any section.</p></div><div class="step-indicator">Step 7 of 7</div></div>
+          <div class="card-body" id="inv_reviewBody"></div>
+          <div class="card-foot"><button class="btn btn-ghost" onclick="invPrev()">&lsaquo; Back</button><button class="btn btn-submit" onclick="invSubmit()">Submit Invoice</button></div>
+        </div>
+      </div>
+
+      <!-- INV Step 8: Done -->
+      <div class="step-panel" id="inv-panel-7">
+        <div class="card">
+          <div class="success-wrap">
+            <h2>Invoice Submitted</h2>
+            <p>Invoice has been saved. Budget has been updated.</p>
+            <div class="po-num-box" id="inv_numDisplay">INV/2025-26/000001</div><br>
+            <span class="status-tag">SUBMITTED — PENDING PROCESSING</span>
+            <div class="review-block" style="text-align:left;max-width:420px;margin:0 auto 20px">
+              <div class="review-block-head"><h4>What happens next</h4></div>
+              <dl class="review-dl">
+                <dt>Finance notified</dt><dd>Automatically via email &amp; portal</dd>
+                <dt>Budget Updated</dt><dd>Amount deducted from available budget</dd>
+                <dt>Status</dt><dd>Pending Processing</dd>
+                <dt>SLA</dt><dd>5 working days</dd>
+              </dl>
+            </div>
+            <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+              <button class="btn btn-primary" onclick="startINV()">+ New Invoice</button>
+              <button class="btn btn-ghost" onclick="goHome()">Back to Dashboard</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /viewINV -->
+
+</div><!-- /mainApp -->
+
+<script>
+// OTP input auto-advance
+document.addEventListener('input',function(e){
+  if(e.target.classList.contains('otp-inp') && e.target.value){
+    const next=e.target.nextElementSibling;
+    if(next && next.classList.contains('otp-inp')) next.focus();
+  }
+});
+document.addEventListener('keydown',function(e){
+  if(e.key==='Backspace' && e.target.classList.contains('otp-inp') && !e.target.value){
+    const prev=e.target.previousElementSibling;
+    if(prev && prev.classList.contains('otp-inp')){ prev.focus(); prev.value=''; }
+  }
+});
+
+// ── HELPERS ────────────────────────────────────────────────
+function v(id){return (document.getElementById(id)||{}).value||'—'}
+function pad2(n){return String(n).padStart(2,'0')}
+function fmtDate(d){return d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}
+function fmtINR(n){const val=Number(n)||0;return '₹ '+val.toLocaleString('en-IN',{minimumFractionDigits:2})}
+function parseMoney(value){return parseFloat(String(value||'').replace(/[^\d.]/g,''))||0}
+function selectedFY(prefix){
+  const raw=v(prefix+'_fy');
+  let m=raw.match(/(\d{4})-(\d{2})/);            // "FY 2025-26" or "2026-27"
+  if(m) return m[1]+'-'+m[2];
+  m=raw.match(/(\d{2})-(\d{2})/);                 // short "26-27" → "2026-27"
+  if(m) return '20'+m[1]+'-'+m[2];
+  return '2025-26';
+}
+function nextSeq(prefix,fy){
+  const key='seq_'+prefix+'_'+fy;
+  const next=(parseInt(localStorage.getItem(key)||'0',10)||0)+1;
+  localStorage.setItem(key,String(next));
+  return prefix+'/'+fy+'/'+String(next).padStart(6,'0');
+}
+function fyForDate(value){
+  const d=new Date(value);
+  if(Number.isNaN(d.getTime())) return '';
+  const year=d.getFullYear();
+  const start=d.getMonth()>=3?year:year-1;
+  return 'FY '+start+'-'+String(start+1).slice(-2);
+}
+function monthSpan(start,end){
+  const s=new Date(start), e=new Date(end);
+  if(Number.isNaN(s.getTime())||Number.isNaN(e.getTime())) return 0;
+  return (e.getFullYear()-s.getFullYear())*12+(e.getMonth()-s.getMonth())+1;
+}
+function slug3(text){return String(text||'GEN').replace(/[^A-Za-z0-9]/g,'').substring(0,3).toUpperCase().padEnd(3,'X')}
+
+// ── LOGIN ───────────────────────────────────────────────────
+const API='http://localhost:3001/api';
+let approvedPRs=[];
+function showAppMessage(message, type='error'){
+  const el=document.getElementById('appMessage');
+  el.className='notice app-message '+(type==='ok'?'ok':type==='info'?'info':'error');
+  el.innerHTML='<strong>'+ (type==='ok'?'Success':type==='info'?'Information':'Please check') +'</strong>'+message;
+  el.style.display='block'; clearTimeout(showAppMessage.timer);
+  showAppMessage.timer=setTimeout(()=>el.style.display='none',5500);
+}
+// Keep validation feedback inside the portal instead of native browser dialogs.
+function alert(message){showAppMessage(message)}
+// Download procurement data as an Excel workbook (type: all|prs|pos|invoices|budget).
+// Uses fetch with the auth header (a plain <a> link can't send Authorization).
+async function exportExcel(type='all'){
+  showAppMessage('Preparing your Excel download...','ok');
+  try{
+    const response=await fetch(API+'/export/'+type+'.xlsx',{headers:authHeaders()});
+    if(response.status===401){ logout('Your session expired. Please sign in again.'); return; }
+    if(!response.ok){ const d=await response.json().catch(()=>({})); return showAppMessage(d.error||'Export failed.'); }
+    const blob=await response.blob();
+    const url=URL.createObjectURL(blob);
+    const link=document.createElement('a');
+    link.href=url; link.download=type==='all'?'procurement-export.xlsx':type+'.xlsx';
+    document.body.appendChild(link); link.click(); link.remove();
+    URL.revokeObjectURL(url);
+  }catch(e){ showAppMessage('Export failed. Is the server running?'); }
+}
+function authHeaders(){
+  const t=localStorage.getItem('token');
+  return t?{Authorization:'Bearer '+t}:{};
+}
+async function api(path, options={}){
+  try{
+    const response=await fetch(API+path,{...options,headers:{'Content-Type':'application/json',...authHeaders(),...(options.headers||{})}});
+    if(response.status===401){ logout('Your session expired. Please sign in again.'); throw new Error('Session expired.'); }
+    const data=await response.json();
+    if(!response.ok)throw new Error(data.error||'Request could not be completed.');
+    return data;
+  }catch(error){showAppMessage(error.message);throw error;}
+}
+
+function showLoginMsg(msg,ok){
+  const el=document.getElementById('loginMsg');
+  el.textContent=msg; el.style.display='block';
+  el.style.color=ok?'var(--green)':'var(--red)';
+}
+
+// Email + password login against the RBAC backend (returns a JWT).
+function doPasswordLogin(){
+  const email=document.getElementById('loginEmail').value.trim();
+  const password=document.getElementById('loginPassword').value;
+  if(!email||!password) return showLoginMsg('Enter your email and password.');
+  showLoginMsg('Signing in...');
+  fetch(API+'/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password})})
+    .then(r=>r.json().then(d=>({s:r.status,d})))
+    .then(({s,d})=>{
+      if(s===200){
+        localStorage.setItem('token',d.token);
+        localStorage.setItem('user',JSON.stringify(d.user));
+        doLogin(d.user);
+      } else showLoginMsg(d.error||'Invalid email or password.');
+    })
+    .catch(()=>showLoginMsg('Connection error. Is the server running?'));
+}
+
+function showLoginScreen(){
+  document.getElementById('loginScreen').style.display='';
+  document.getElementById('mainApp').style.display='none';
+}
+
+function logout(msg){
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  CURRENT_USER=null;
+  showLoginScreen();
+  if(msg) showLoginMsg(msg);
+}
+
+// On load: if a valid token exists, restore the session; otherwise show login.
+document.addEventListener('DOMContentLoaded',function(){
+  const token=localStorage.getItem('token');
+  if(!token){ showLoginScreen(); return; }
+  fetch(API+'/auth/me',{headers:{Authorization:'Bearer '+token}})
+    .then(r=>r.ok?r.json():Promise.reject())
+    .then(d=>{ localStorage.setItem('user',JSON.stringify(d.user)); doLogin(d.user); })
+    .catch(()=>logout());
+});
+
+let CURRENT_USER=null;
+// Hide any module card / element whose data-perm is not in the user's permissions.
+function applyPermissions(user){
+  const perms=(user&&user.permissions)||[];
+  document.querySelectorAll('[data-perm]').forEach(el=>{
+    el.style.display=perms.includes(el.getAttribute('data-perm'))?'':'none';
+  });
+}
+function doLogin(user){
+  CURRENT_USER=user;
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('mainApp').style.display='block';
+  document.getElementById('userBadge').textContent=(user?.name||'User').split(' ').map(s=>s[0]).join('');
+  document.getElementById('userName').textContent=(user?.name||'User')+(user?.roleName?' · '+user.roleName:'');
+  applyPermissions(user);
+  const now=new Date(), y=now.getFullYear(), m=pad2(now.getMonth()+1), d=pad2(now.getDate());
+  const today=`${y}-${m}-${d}`;
+  document.getElementById('pr_start').value=today;
+  document.getElementById('po_start').value=today;
+  const e=new Date(now); e.setFullYear(e.getFullYear()+1);
+  document.getElementById('pr_end').value=`${e.getFullYear()}-${m}-${d}`;
+  document.getElementById('po_end').value=`${e.getFullYear()}-${m}-${d}`;
+  calcPRDates(); calcPODates();
+  document.getElementById('ipr_costtype').value='OPEX';
+  document.getElementById('ipr_function').value='Infra';
+  document.getElementById('inv_costtype').value='OPEX';
+  iprUpdateBudget();
+  prInitMasters();
+  if(msRows.length===0){addMilestone(); addMilestone();}
+  if(negLevels.length===0)addNegLevel();
+}
+
+// ── VIEWS ──────────────────────────────────────────────────
+function showView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function goHome(){
+  showView('viewHome');
+  document.getElementById('navTitle').textContent='Procurement';
+  document.getElementById('breadcrumb').innerHTML='<a href="#" onclick="goHome();return false">Home</a> &rsaquo; <a href="#">Procurement</a> &rsaquo; Dashboard';
+}
+function startPR(){
+  prCur=0; updatePRStepper(); showPanel('pr',0);
+  showView('viewPR');
+  prInitMasters();
+  document.getElementById('navTitle').textContent='Purchase Request';
+  document.getElementById('breadcrumb').innerHTML='<a href="#" onclick="goHome();return false">Home</a> &rsaquo; <a href="#">Procurement</a> &rsaquo; New PR';
+}
+async function startPO(){
+  poCur=0; updatePOStepper(); showPanel('po',0);
+  showView('viewPO');
+  fillVendor(); updateMSTotal();
+  await loadApprovedPRs();
+  document.getElementById('navTitle').textContent='Purchase Order';
+  document.getElementById('breadcrumb').innerHTML='<a href="#" onclick="goHome();return false">Home</a> &rsaquo; <a href="#">Procurement</a> &rsaquo; New PO';
+}
+
+async function loadApprovedPRs(){
+  const select=document.getElementById('po_pr');
+  select.innerHTML='<option value="">Loading approved PRs...</option>';
+  try{
+    approvedPRs=await api('/pr/approved');
+    select.innerHTML='<option value="">— Select approved PR —</option>'+approvedPRs.map(pr=>'<option value="'+pr.id+'">'+pr.number+' · '+pr.short_text+' · '+fmtINR(pr.remaining_po_amount)+' remaining</option>').join('');
+    if(!approvedPRs.length){select.innerHTML='<option value="">No approved PRs with remaining balance</option>';showAppMessage('No approved PR is currently available for PO creation.','info');}
+  }catch(error){select.innerHTML='<option value="">Unable to load approved PRs</option>';}
+}
+function selectedPOPR(){return approvedPRs.find(pr=>String(pr.id)===document.getElementById('po_pr').value)}
+function selectPOPR(){
+  const pr=selectedPOPR();
+  document.getElementById('po_prNotice').innerHTML=pr?'<strong>Linked PR:</strong> '+pr.number+' — '+pr.short_text+' — '+fmtINR(pr.remaining_po_amount)+' remaining':'<strong>Linked PR:</strong> Select an approved PR with available PO balance.';
+  document.getElementById('po_amountNotice').innerHTML=pr?'<strong>Approved PR balance:</strong> '+fmtINR(pr.remaining_po_amount)+' — PO value cannot exceed this amount.':'<strong>Approved PR balance:</strong> Select a PR to see its remaining PO amount.';
+  calcPO();
+}
+
+function govFilterValues(){
+  return {
+    fy:document.getElementById('gov_fy')?.value||'2026-27',
+    functionName:document.getElementById('gov_function')?.value||'',
+    status:document.getElementById('gov_status')?.value||'',
+    from:document.getElementById('gov_from')?.value||'',
+    to:document.getElementById('gov_to')?.value||''
+  };
+}
+function resetGovernanceFilters(){
+  document.getElementById('gov_fy').value='2026-27';
+  document.getElementById('gov_function').value='';
+  document.getElementById('gov_status').value='';
+  document.getElementById('gov_from').value='';
+  document.getElementById('gov_to').value='';
+  startGovernance();
+}
+function rowInDateRange(row,filters){
+  const value=String(row.created_at||row.updated_at||row.invoice_date||'').slice(0,10);
+  if(!value)return true;
+  if(filters.from&&value<filters.from)return false;
+  if(filters.to&&value>filters.to)return false;
+  return true;
+}
+function filterGovernanceRows(rows,type,filters){
+  return rows.filter(row=>{
+    if(row.financial_year&&filters.fy&&row.financial_year!==filters.fy)return false;
+    if(filters.status&&row.status!==filters.status)return false;
+    if(filters.functionName&&type!=='po'){
+      const fn=row.function_name||row.function||'';
+      if(fn!==filters.functionName)return false;
+    }
+    return rowInDateRange(row,filters);
+  });
+}
+function dashboardState(title,body){
+  return '<div class="dashboard-state"><strong>'+title+'</strong><span>'+body+'</span></div>';
+}
+
+async function startGovernance(){
+  showView('viewGovernance');
+  document.getElementById('navTitle').textContent='Governance Control';
+  document.getElementById('breadcrumb').innerHTML='<a href="#" onclick="goHome();return false">Home</a> &rsaquo; Governance Control';
+  const role=CURRENT_USER&&CURRENT_USER.role;
+  const isEnterprise=role==='governance_team'||role==='cdio';
+  const filters=govFilterValues();
+  document.getElementById('gov_statsBasic').style.display=isEnterprise?'none':'';
+  document.getElementById('gov_dashboard').innerHTML=dashboardState('Loading dashboard','Fetching KPIs, trend data, and approval queues...');
+  document.getElementById('gov_prRows').innerHTML='<tr><td colspan="6">Loading PRs...</td></tr>';
+  document.getElementById('gov_poRows').innerHTML='<tr><td colspan="6">Loading POs...</td></tr>';
+  document.getElementById('gov_invRows').innerHTML='<tr><td colspan="6">Loading invoices...</td></tr>';
+  try{
+    const [dashboard,prs,pos,invoices]=await Promise.all([api('/governance/dashboard'),api('/governance/prs'),api('/governance/pos'),api('/governance/invoices')]);
+    const filteredPRs=filterGovernanceRows(prs,'pr',filters);
+    const filteredPOs=filterGovernanceRows(pos,'po',filters);
+    const filteredInvoices=filterGovernanceRows(invoices,'invoice',filters);
+    document.getElementById('gov_pending').textContent=dashboard.pendingApprovals;
+    document.getElementById('gov_available').textContent=dashboard.approvedAvailable;
+    document.getElementById('gov_budgetUsed').textContent=fmtINR(dashboard.budgetUsage.used);
+    document.getElementById('gov_invoices').textContent=dashboard.pendingInvoices || 0;
+    document.getElementById('gov_prRows').innerHTML=filteredPRs.length?filteredPRs.map(pr=>'<tr><td>'+pr.number+'</td><td>'+pr.request_type+'</td><td>'+fmtINR(pr.amount)+'</td><td>'+fmtINR(pr.used_po_amount)+' / '+fmtINR(pr.remaining_po_amount)+'</td><td>'+pr.status+'</td><td class="gov-actions">'+(['Submitted','Pending Approval'].includes(pr.status)?'<button class="btn btn-submit btn-sm" onclick="governancePR('+pr.id+',\'approve\')">Approve</button> <button class="btn btn-ghost btn-sm" onclick="governancePR('+pr.id+',\'reject\')">Reject</button>':pr.status==='Approved'&&pr.remaining_po_amount>0?'<button class="btn btn-primary btn-sm" onclick="startPOFromPR('+pr.id+')">Create PO</button>':'')+'</td></tr>').join(''):'<tr><td colspan="6">No PRs match the selected filters.</td></tr>';
+    document.getElementById('gov_poRows').innerHTML=filteredPOs.length?filteredPOs.map(po=>'<tr><td>'+po.number+'</td><td>'+po.purchase_request_number+'</td><td>'+po.vendor+'</td><td>'+fmtINR(po.amount)+'</td><td>'+po.status+'</td><td class="gov-actions">'+(['Draft','Submitted','Pending Approval'].includes(po.status)?'<button class="btn btn-submit btn-sm" onclick="governancePO('+po.id+',\'approve\')">Approve</button> ':'')+(po.status!=='Cancelled'?'<button class="btn btn-ghost btn-sm" onclick="governancePO('+po.id+',\'cancel\')">Cancel</button>':'')+'</td></tr>').join(''):'<tr><td colspan="6">No POs match the selected filters.</td></tr>';
+    document.getElementById('gov_invRows').innerHTML=filteredInvoices.length?filteredInvoices.map(inv=>'<tr><td>'+inv.number+'</td><td>'+inv.vendor+'</td><td>'+inv.invoice_number+'</td><td>'+inv.budget_code+'</td><td>'+fmtINR(inv.amount)+'</td><td>'+inv.status+'</td></tr>').join(''):'<tr><td colspan="6">No invoices match the selected filters.</td></tr>';
+  }catch(error){
+    document.getElementById('gov_dashboard').innerHTML=dashboardState('Dashboard unavailable','Check that the backend is running and your session is valid.');
+  }
+  // Enterprise persona dashboards (slides 74-75) — Governance Team / CDIO only.
+  if(isEnterprise){
+    try{
+      const fyQuery='?financialYear='+encodeURIComponent(filters.fy);
+      if(role==='cdio'){
+        document.getElementById('gov_title').textContent='PR-PO Digital Portal';
+        document.getElementById('gov_subtitle').innerHTML='<span class="role-pill">CDIO &middot; Enterprise CXO View</span> &nbsp;Top-of-house spend, risk and approvals';
+        const data=await api('/dashboards/cdio'+fyQuery);
+        document.getElementById('gov_dashboard').innerHTML=renderCdioDashboard(data);
+      } else {
+        document.getElementById('gov_title').textContent='PR-PO Digital Portal';
+        document.getElementById('gov_subtitle').innerHTML='<span class="role-pill">Governance Team &middot; Super Admin</span> &nbsp;Enterprise control desk — operate the process end-to-end';
+        const data=await api('/dashboards/governance'+fyQuery);
+        document.getElementById('gov_dashboard').innerHTML=renderGovDashboard(data);
+      }
+    }catch(error){
+      document.getElementById('gov_dashboard').innerHTML=dashboardState('No enterprise dashboard data','Try another financial year or refresh after creating PR/PO/invoice records.');
+    }
+  } else {
+    document.getElementById('gov_title').textContent='Governance Control';
+    document.getElementById('gov_subtitle').textContent='Monitor approvals, PR consumption, and budget usage.';
+    if(document.getElementById('gov_dashboard').innerHTML.includes('Loading dashboard'))document.getElementById('gov_dashboard').innerHTML='';
+  }
+}
+
+// ── Persona dashboard renderers (real data from /api/dashboards/*) ─────────
+function kpiTile(label,value,sub){
+  return '<div class="kpi-tile"><div class="kpi-label">'+label+'</div><div class="kpi-value">'+value+'</div>'+(sub?'<div class="kpi-sub">'+sub+'</div>':'')+'</div>';
+}
+function barRow(label,value,max,fmt){
+  const pct=max>0?Math.min(100,(value/max)*100):0;
+  return '<div class="bar-row"><span>'+label+'</span><div class="bar-track"><div class="bar-fill" style="width:'+pct.toFixed(1)+'%"></div></div><span class="bar-val">'+(fmt?fmt(value):value)+'</span></div>';
+}
+// Small multi-series line chart (function-wise PR value by month) as inline SVG — no chart library needed.
+function trendSvg(trend){
+  const fns=Object.keys(trend);
+  if(!fns.length)return '<p class="field-hint">No PR data yet for this financial year.</p>';
+  const months=[...new Set(fns.flatMap(fn=>Object.keys(trend[fn])))].sort();
+  if(!months.length)return '<p class="field-hint">No PR data yet for this financial year.</p>';
+  const max=Math.max(1,...fns.flatMap(fn=>months.map(m=>trend[fn][m]||0)));
+  const W=640,H=224,padL=54,padR=18,padT=20,padB=42;
+  const plotW=W-padL-padR,plotH=H-padT-padB;
+  const x=i=>months.length===1?padL+(plotW/2):padL+(i/(months.length-1))*plotW;
+  const y=v=>padT+plotH-((v/max)*plotH);
+  const shortMoney=v=>v>=10000000?'₹'+(v/10000000).toFixed(1)+'Cr':v>=100000?'₹'+(v/100000).toFixed(1)+'L':v>=1000?'₹'+(v/1000).toFixed(0)+'K':'₹'+v.toFixed(0);
+  const monthLabel=m=>{const d=new Date(m+'-01');return Number.isNaN(d.getTime())?m:d.toLocaleDateString('en-IN',{month:'short'});};
+  const colors=['#1e5bb5','#0f9d8f','#d97706','#8b5cf6','#dc2626','#0ea5e9'];
+  let svg='<div class="trend-chart"><svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Function-wise PR value trend">';
+  for(let i=0;i<=4;i++){
+    const gy=padT+(plotH*i/4);
+    const val=max-(max*i/4);
+    svg+='<line x1="'+padL+'" y1="'+gy.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+gy.toFixed(1)+'" stroke="#E7EEF8" stroke-width="1"/>';
+    svg+='<text x="'+(padL-10)+'" y="'+(gy+4).toFixed(1)+'" text-anchor="end" font-size="10" fill="#8BA0C0">'+shortMoney(val)+'</text>';
+  }
+  months.forEach((m,i)=>{
+    svg+='<text x="'+x(i).toFixed(1)+'" y="'+(H-16)+'" text-anchor="middle" font-size="10" fill="#7C8DA8">'+monthLabel(m)+'</text>';
+  });
+  svg+='<line x1="'+padL+'" y1="'+(padT+plotH)+'" x2="'+(W-padR)+'" y2="'+(padT+plotH)+'" stroke="#D8E3F2" stroke-width="1.2"/>';
+  fns.forEach((fn,fi)=>{
+    const pts=months.map((m,i)=>x(i).toFixed(1)+','+y(trend[fn][m]||0).toFixed(1)).join(' ');
+    const color=colors[fi%colors.length];
+    if(months.length>1)svg+='<polyline points="'+pts+'" fill="none" stroke="'+color+'" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>';
+    months.forEach((m,i)=>{
+      const value=trend[fn][m]||0;
+      const cx=x(i),cy=y(value);
+      const offset=(fi-(fns.length-1)/2)*9;
+      svg+='<circle cx="'+(cx+offset).toFixed(1)+'" cy="'+cy.toFixed(1)+'" r="4.5" fill="'+color+'" stroke="#fff" stroke-width="2"/>';
+      if(value>0)svg+='<text x="'+(cx+offset).toFixed(1)+'" y="'+(cy-9).toFixed(1)+'" text-anchor="middle" font-size="9" fill="'+color+'" font-weight="700">'+shortMoney(value)+'</text>';
+    });
+  });
+  svg+='</svg></div>';
+  const legend=fns.map((fn,fi)=>'<span><i style="background:'+colors[fi%colors.length]+'"></i>'+fn+'</span>').join('');
+  return svg+'<div class="trend-legend">'+legend+'</div>';
+}
+function renderGovDashboard(d){
+  const k=d.kpis;
+  const tiles=[
+    kpiTile('Total PRs (FY)',k.totalPRs),
+    kpiTile('POs Released',k.posReleased),
+    kpiTile('Invoices',k.invoicesCount,fmtINR(k.invoicesValue)+' value'),
+    kpiTile('Open Approvals',k.openApprovals),
+    kpiTile('SLA Adherence',k.slaAdherencePct!=null?k.slaAdherencePct+'%':'—','Approved within 3 days'),
+    kpiTile('Cycle Time (Raise&rarr;PO)',k.avgCycleTimeDays!=null?k.avgCycleTimeDays+' d':'—'),
+  ];
+  const funnel=[['Raised',d.statusFunnel.raised],['Released (PR)',d.statusFunnel.released],['PO Created',d.statusFunnel.poCreated]];
+  const funnelMax=Math.max(1,...funnel.map(f=>f[1]));
+  const tiersRows=d.openApprovalsByTier.map(t=>'<tr><td>'+t.tier+'</td><td>'+t.count+'</td><td>'+t.avgAgingDays+'</td><td>'+(t.avgAgingDays>3?'<span style="color:var(--red)">&#9679; Breach</span>':t.avgAgingDays>1.5?'<span style="color:var(--amber)">&#9679; Watch</span>':'<span style="color:var(--green)">&#9679; On-track</span>')+'</td></tr>').join('');
+  return '<div class="kpi-grid">'+tiles.join('')+'</div>'+
+    '<div class="dash-row">'+
+      '<div class="card"><div class="card-head"><div class="card-head-left"><h2>Function-wise PR value trend</h2><p>By month, this financial year</p></div></div><div class="card-body">'+trendSvg(d.functionTrend)+'</div></div>'+
+      '<div class="card"><div class="card-head"><div class="card-head-left"><h2>PR status funnel</h2></div></div><div class="card-body"><div class="bar-list">'+funnel.map(f=>barRow(f[0],f[1],funnelMax)).join('')+'</div></div></div>'+
+    '</div>'+
+    '<div class="dash-row">'+
+      '<div class="card"><div class="card-head"><div class="card-head-left"><h2>Open approvals by role &amp; aging</h2></div></div><div class="card-body" style="overflow:auto"><table class="gov-table"><thead><tr><th>Pending with</th><th>Count</th><th>Avg aging (days)</th><th>Status</th></tr></thead><tbody>'+(tiersRows||'<tr><td colspan="4">No open approvals.</td></tr>')+'</tbody></table></div></div>'+
+      '<div class="digest-panel"><h3>Automated Daily Digest — EOD PR Report (Excel)</h3><p>Structured to auto-email the Governance Team every day at 18:30 IST. Email delivery is simulated in this environment (no SMTP configured) — download or trigger the simulated send below.</p>'+
+        '<button class="btn btn-primary btn-sm" onclick="downloadEodDigest()" style="margin-right:8px">&#8681; Download EOD Excel</button>'+
+        '<button class="btn btn-ghost btn-sm" onclick="sendEodDigest()">Send Now (simulated)</button></div>'+
+    '</div>';
+}
+function renderCdioDashboard(d){
+  const b=d.budget;
+  const tiles=[
+    kpiTile('FY Budget Sanctioned',fmtINR(b.allocated)),
+    kpiTile('Utilised',fmtINR(b.utilised),b.allocated?((b.utilised/b.allocated)*100).toFixed(1)+'% of plan':''),
+    kpiTile('Committed',fmtINR(b.committed),'PR + PO pipeline'),
+    kpiTile('Available',fmtINR(b.available),b.allocated?((b.available/b.allocated)*100).toFixed(1)+'% headroom':''),
+    kpiTile('Pending My Approval',d.pendingApproval.length,fmtINR(d.pendingApproval.reduce((s,p)=>s+p.amount,0))+' value'),
+    kpiTile('Process Efficiency',d.processEfficiency.avgCycleTimeDays!=null?d.processEfficiency.avgCycleTimeDays+' d':'—','Avg PR&rarr;PO cycle'),
+  ];
+  const fnMax=Math.max(1,...d.functionBreakdown.flatMap(f=>[f.allocated,f.committed,f.utilised]));
+  const fnRows=d.functionBreakdown.map(f=>
+    '<div style="margin-bottom:10px"><div style="font-size:12px;font-weight:600;margin-bottom:4px">'+f.function+'</div>'+
+    barRow('Allocated',f.allocated,fnMax,fmtINR)+barRow('Committed',f.committed,fnMax,fmtINR)+barRow('Utilised',f.utilised,fnMax,fmtINR)+'</div>').join('');
+  const vendMax=Math.max(1,...d.topVendors.map(v=>v.amount));
+  const vendRows=d.topVendors.map(v=>barRow(v.vendor,v.amount,vendMax,fmtINR)).join('')||'<p class="field-hint">No vendor spend yet.</p>';
+  const pendRows=d.pendingApproval.map(p=>'<tr><td>'+p.number+'</td><td>'+(p.description||'—')+'</td><td>'+fmtINR(p.amount)+'</td><td>'+p.agingDays+' d</td><td><button class="btn btn-ghost btn-sm" onclick="document.getElementById(\'gov_prTableAnchor\').scrollIntoView({behavior:\'smooth\'})">Review</button></td></tr>').join('')||'<tr><td colspan="5">Nothing pending your approval.</td></tr>';
+  const alertRows=d.riskAlerts.length?d.riskAlerts.map(a=>'<div class="alert-row"><span class="alert-tag '+a.level+'">'+a.level+'</span><span>'+a.text+'</span></div>').join(''):'<p class="field-hint">No alerts.</p>';
+  return '<div class="kpi-grid">'+tiles.join('')+'</div>'+
+    '<div class="dash-row">'+
+      '<div class="card"><div class="card-head"><div class="card-head-left"><h2>Function-wise allocation vs utilisation</h2></div></div><div class="card-body">'+(fnRows||'<p class="field-hint">No budget lines yet.</p>')+'</div></div>'+
+      '<div class="card"><div class="card-head"><div class="card-head-left"><h2>Pending my approval</h2><p>'+d.pendingApproval.length+' items</p></div></div><div class="card-body" style="overflow:auto"><table class="gov-table"><thead><tr><th>PR #</th><th>Description</th><th>Value</th><th>Aging</th><th></th></tr></thead><tbody>'+pendRows+'</tbody></table></div></div>'+
+    '</div>'+
+    '<div class="dash-row">'+
+      '<div class="card"><div class="card-head"><div class="card-head-left"><h2>Top vendors by FY spend</h2></div></div><div class="card-body"><div class="bar-list">'+vendRows+'</div></div></div>'+
+      '<div class="card"><div class="card-head"><div class="card-head-left"><h2>Risk &amp; exception alerts</h2></div></div><div class="card-body">'+alertRows+'</div></div>'+
+    '</div>';
+}
+async function downloadEodDigest(){
+  try{
+    const r=await fetch(API+'/export/eod-digest.xlsx',{headers:authHeaders()});
+    if(r.status===401){ logout('Your session expired. Please sign in again.'); return; }
+    if(!r.ok){ const d=await r.json().catch(()=>({})); return showAppMessage(d.error||'Could not generate the digest.'); }
+    const blob=await r.blob(); const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download='eod-digest.xlsx'; document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  }catch(e){ showAppMessage('Could not download the digest.'); }
+}
+async function sendEodDigest(){
+  try{
+    const d=await api('/export/eod-digest/send',{method:'POST'});
+    showAppMessage(d.message||'Digest send simulated.','ok');
+  }catch(error){}
+}
+async function governancePR(id,action){try{await api('/pr/'+id+'/'+action,{method:'POST',body:JSON.stringify({actor:'Governance'})});showAppMessage('PR '+action+'d.','ok');startGovernance()}catch(error){}}
+async function governancePO(id,action){try{await api('/po/'+id+'/'+action,{method:'POST',body:JSON.stringify({actor:'Governance'})});showAppMessage('PO '+action+'led.','ok');startGovernance()}catch(error){}}
+async function startPOFromPR(id){await startPO();document.getElementById('po_pr').value=String(id);selectPOPR()}
+async function startINV(){
+  invCur=0; _invDupOk=false; _invBudOk=false; updateINVStepper(); showPanel('inv',0);
+  showView('viewINV');
+  document.getElementById('navTitle').textContent='Invoice Management';
+  document.getElementById('breadcrumb').innerHTML='<a href="#" onclick="goHome();return false">Home</a> &rsaquo; <a href="#">Governance</a> &rsaquo; New Invoice';
+  const now=new Date(); const m=String(now.getMonth()+1).padStart(2,'0'); const d=String(now.getDate()).padStart(2,'0');
+  document.getElementById('inv_date').value=now.getFullYear()+'-'+m+'-'+d;
+  document.getElementById('inv_svc_from').value=now.getFullYear()+'-'+m+'-01';
+  const e=new Date(now); e.setMonth(e.getMonth()+1);
+  document.getElementById('inv_svc_to').value=e.getFullYear()+'-'+String(e.getMonth()+1).padStart(2,'0')+'-'+d;
+  try{await refreshInvBudget()}catch(error){}
+  invPopulateBudgetCats();
+}
+
+function startIPR(){
+  iprCur=0; updateIPRStepper(); showPanel('ipr',0);
+  showView('viewIPR');
+  document.getElementById('ipr_costtype').value='OPEX';
+  document.getElementById('ipr_function').value='Infra';
+  document.getElementById('navTitle').textContent='PR (Infra / Plant User)';
+  document.getElementById('breadcrumb').innerHTML='<a href="#" onclick="goHome();return false">Home</a> &rsaquo; <a href="#">Procurement</a> &rsaquo; Infra PR';
+}
+
+  // ── GENERIC PANEL SHOW ─────────────────────────────────────
+  function showPanel(prefix,n){
+  document.querySelectorAll(`#view${prefix.toUpperCase()} .step-panel`).forEach(p=>p.classList.remove('active'));
+  document.getElementById(`${prefix}-panel-${n}`).classList.add('active');
+  window.scrollTo({top:80,behavior:'smooth'});
+}
+
+// ── PR STEPPER ─────────────────────────────────────────────
+let prCur=0, PR_TOTAL=7;
+function updatePRStepper(){
+  const tabs=document.querySelectorAll('#pr-stepper .step-tab');
+  tabs.forEach((t,i)=>{t.classList.remove('active','done');if(i<prCur)t.classList.add('done');if(i===prCur)t.classList.add('active')});
+  document.getElementById('pr-prog').style.width=(((prCur+1)/(PR_TOTAL+1))*100).toFixed(1)+'%';
+}
+function prGo(n){if(n<=prCur){prCur=n;updatePRStepper();showPanel('pr',n)}}
+function prNext(){
+  const V=id=>document.getElementById(id)?.value||'';
+  if(prCur===0&&(!V('pr_company')||!V('pr_function')||!V('pr_category')||!V('pr_lineitem')||!V('pr_shorttext'))){alert('Please fill Company, Function, Category, Line Item, and Short Text.');return}
+  if(prCur===2){
+    const q=parseFloat(V('pr_qty'))||0,r=parseFloat(V('pr_rate'))||0;
+    if(!V('pr_units')||!q||!r){alert('Enter Units, Quantity, and Rate.');return}
+    if(!validatePRBudget()){alert('Budget exceeded. Reduce PR value or revise budget before proceeding.');return}
+    if(document.getElementById('pr_shared_yes')?.checked&&!prAllocationIsValid()){alert('Shared allocation must total 100% and every allocation must remain within available budget.');return}
+  }
+  if(prCur===3&&(!V('pr_start')||!V('pr_end'))){alert('Select Start Date and End Date.');return}
+  if(prCur===4){
+    // Cost Centre is auto-populated for some functions (dropdown hidden) — treat as valid then.
+    const ccAuto=document.getElementById('pr_cc_auto_wrap').style.display!=='none';
+    const ccOk=ccAuto||!!V('pr_cc');
+    const ioNeeded=PR_IO_FUNCTIONS.includes(V('pr_function'));
+    const ioOk=!ioNeeded||!!V('pr_io');
+    if(!V('pr_tax')||!ccOk||!ioOk){alert('Select Tax, Cost Centre'+(ioNeeded?' and Internal Order.':'.'));return}
+  }
+  if(prCur<PR_TOTAL){prCur++;updatePRStepper();showPanel('pr',prCur)}
+}
+function prPrev(){if(prCur>0){prCur--;updatePRStepper();showPanel('pr',prCur)}}
+
+// ── PO STEPPER ─────────────────────────────────────────────
+let poCur=0, PO_TOTAL=8;
+function updatePOStepper(){
+  const tabs=document.querySelectorAll('#po-stepper .step-tab');
+  tabs.forEach((t,i)=>{t.classList.remove('active','done');if(i<poCur)t.classList.add('done');if(i===poCur)t.classList.add('active')});
+  document.getElementById('po-prog').style.width=(((poCur+1)/(PO_TOTAL+1))*100).toFixed(1)+'%';
+}
+function poGo(n){if(n<=poCur){poCur=n;updatePOStepper();showPanel('po',n)}}
+function poNext(){
+  const V=id=>document.getElementById(id)?.value||'';
+  if(poCur===0&&!V('po_pr')){alert('Select an approved PR before creating a PO.');return}
+  if(poCur===0&&!V('po_vendor')){alert('Select a Vendor.');return}
+  if(poCur===0&&V('po_vendor')==='NOT_IN_LIST'){alert('Complete Vendor Management before creating the PO.');return}
+  if(poCur===1){const q=parseFloat(V('po_qty'))||0,r=parseFloat(V('po_rate'))||0;if(!q||!r){alert('Enter Quantity and Rate.');return}}
+  if(poCur===2){
+    if(!V('po_payterms')){alert('Select Payment Terms.');return}
+    if(V('po_payterms')==='Milestone Based'&&!milestonesAreValid()){alert('Milestone payment must have named stages and total exactly 100%.');return}
+  }
+  if(poCur===3&&(!V('po_start')||!V('po_end'))){alert('Select Start Date and End Date.');return}
+  if(poCur===4&&!V('po_inco')){alert('Select Inco Terms.');return}
+  if(poCur===5){
+    const y=document.getElementById('neg_yes')?.checked,no=document.getElementById('neg_no')?.checked;
+    if(!y&&!no){alert('Indicate whether negotiation is complete.');return}
+    if(y&&(!V('neg_person')||negLevels.length===0)){alert('Enter Lead Negotiator and at least one negotiation level.');return}
+    if(!y&&no&&!V('neg_status')){alert('Select Negotiation Status.');return}
+    if(!y&&V('neg_status')==='ratecard'&&!V('neg_ratecompany')){alert('Select the applicable rate-card company.');return}
+  }
+  if(poCur<PO_TOTAL){poCur++;updatePOStepper();showPanel('po',poCur)}
+}
+function poPrev(){if(poCur>0){poCur--;updatePOStepper();showPanel('po',poCur)}}
+
+// ── INV STEPPER ─────────────────────────────────────────────
+let invCur=0, INV_TOTAL=7, _invDupOk=false, _invBudOk=false;
+function updateINVStepper(){
+  const tabs=document.querySelectorAll('#inv-stepper .step-tab');
+  tabs.forEach((t,i)=>{t.classList.remove('active','done');if(i<invCur)t.classList.add('done');if(i===invCur)t.classList.add('active')});
+  document.getElementById('inv-prog').style.width=(((invCur+1)/(INV_TOTAL+1))*100).toFixed(1)+'%';
+}
+function invGo(n){if(n<=invCur){invCur=n;updateINVStepper();showPanel('inv',n)}}
+
+// Run duplicate check synchronously — no setTimeout
+async function runInvDupCheck(){
+  _invDupOk=false;
+  const vendor=document.getElementById('inv_vendor').value.trim();
+  const invNo=document.getElementById('inv_number').value.trim().toUpperCase();
+  const date=document.getElementById('inv_date').value;
+  const notice=document.getElementById('inv-dup-notice');
+  const result=document.getElementById('inv-dup-result');
+  const btn=document.getElementById('inv-dup-next');
+  btn.disabled=true;
+  notice.innerHTML='<strong>Checking...</strong> Verifying against backend invoice records.'; notice.className='notice info';
+  result.style.display='none';
+  try{
+    const check=await api('/invoice/check-duplicate',{method:'POST',body:JSON.stringify({vendor,invoiceNumber:invNo,invoiceDate:date})});
+    if(check.duplicate){
+      notice.innerHTML='<strong>Duplicate Found.</strong> Invoice already exists (Ref: '+check.invoice.number+'). Submission stopped.'; notice.className='notice error';
+      result.style.display='block'; result.innerHTML='<strong>Duplicate Invoice Already Exists</strong><p style="margin-top:6px">Vendor: '+vendor+'<br>Invoice: '+invNo+'<br>Date: '+date+'</p>';
+      btn.disabled=true;
+    } else {
+      notice.innerHTML='<strong>No duplicate found.</strong> You may proceed.'; notice.className='notice ok';
+      result.style.display='block'; result.innerHTML='<strong>Not Duplicate</strong><p style="margin-top:6px">This invoice has not been submitted before.</p>';
+      _invDupOk=true; btn.disabled=false;
+    }
+  }catch(error){
+    notice.innerHTML='<strong>Check failed.</strong> Fix the error and try again.'; notice.className='notice error';
+    result.style.display='block'; result.innerHTML='<strong>Duplicate check could not be completed.</strong>';
+  }
+}
+async function runInvBudCheck(){
+  _invBudOk=false;
+  const fn=document.getElementById('inv_function').value;
+  const cat=document.getElementById('inv_category').value;
+  const li=document.getElementById('inv_lineitem').value;
+  const amt=parseFloat(document.getElementById('inv_amount').value)||0;
+  const notice=document.getElementById('inv-bud-notice');
+  const result=document.getElementById('inv-bud-result');
+  const table=document.getElementById('inv-bud-table');
+  const btn=document.getElementById('inv-bud-next');
+  btn.disabled=true;
+  notice.innerHTML='<strong>Validating...</strong> Checking invoice amount against backend budget.'; notice.className='notice info';
+  result.style.display='none'; table.style.display='none';
+  try{
+    const check=await api('/invoice/validate-budget',{method:'POST',body:JSON.stringify({financialYear:selectedFY('inv'),function:fn,category:cat,lineItem:li,budgetCode:document.getElementById('inv_bcode').value,amount:amt})});
+    document.getElementById('inv-bud-inv-amt').textContent=fmtINR(check.invoiceAmount);
+    document.getElementById('inv-bud-avail').textContent=fmtINR(check.available);
+    if(check.ok){
+      notice.innerHTML='<strong>Budget sufficient.</strong> Invoice amount is within available budget.'; notice.className='notice ok';
+      result.innerHTML='<strong>Result: Pass</strong><p style="margin-top:6px">Invoice '+fmtINR(check.invoiceAmount)+' <= Available '+fmtINR(check.available)+'</p>';
+      document.getElementById('inv-bud-result-val').textContent='Pass';
+      _invBudOk=true; btn.disabled=false;
+    } else {
+      notice.innerHTML='<strong>Budget exceeded.</strong> Reduce amount or request budget revision.'; notice.className='notice error';
+      result.innerHTML='<strong>Result: Fail - Budget Exceeded</strong><p style="margin-top:6px">Invoice '+fmtINR(check.invoiceAmount)+' > Available '+fmtINR(check.available)+'</p>';
+      document.getElementById('inv-bud-result-val').textContent='Fail - Budget Exceeded';
+      _invBudOk=false; btn.disabled=true;
+    }
+    result.style.display='block'; table.style.display='table';
+  }catch(error){
+    notice.innerHTML='<strong>Error:</strong> Budget validation could not be completed.'; notice.className='notice error';
+    result.innerHTML='<strong>Budget validation failed.</strong>';
+    result.style.display='block'; table.style.display='table';
+  }
+}
+
+function invNext(){
+  const p=invCur;
+  if(p===0&&(!document.getElementById('inv_vendor').value||!document.getElementById('inv_function').value)){alert('Fill all required fields.');return}
+  if(p===1&&(!document.getElementById('inv_category').value||!document.getElementById('inv_lineitem').value)){alert('Select category and line item.');return}
+  if(p===2&&(!document.getElementById('inv_desc').value||!document.getElementById('inv_ser').value)){alert('Fill description and service entry number.');return}
+  if(p===3&&(!document.getElementById('inv_number').value||!document.getElementById('inv_amount').value||!document.getElementById('inv_svc_from').value||!document.getElementById('inv_svc_to').value||!document.getElementById('inv_date').value)){alert('Fill all invoice details, including service period.');return}
+  if(p===3&&new Date(document.getElementById('inv_svc_from').value)>new Date(document.getElementById('inv_svc_to').value)){alert('Service Period From cannot be after Service Period To.');return}
+  if(p===3){invCur=4;updateINVStepper();showPanel('inv',4);runInvDupCheck();return}
+  if(p===4){if(!_invDupOk){alert('Duplicate check must pass.');return}invCur=5;updateINVStepper();showPanel('inv',5);runInvBudCheck();return}
+  if(p===5){if(!_invBudOk){alert('Budget validation must pass.');return}invBuildReview();invCur=6;updateINVStepper();showPanel('inv',6);return}
+  if(p<INV_TOTAL&&p!==3&&p!==4&&p!==5){invCur=p+1;updateINVStepper();showPanel('inv',invCur)}
+}
+function invPrev(){
+  if(invCur>0){invCur--;updateINVStepper();showPanel('inv',invCur)}
+  if(invCur===4){_invDupOk=false;runInvDupCheck()}
+  if(invCur===5){_invBudOk=false;runInvBudCheck()}
+}
+
+// ── IPR STEPPER (Infra / Plant User) ───────────────────────
+let iprCur=0, IPR_TOTAL=10;
+function updateIPRStepper(){
+  const tabs=document.querySelectorAll('#ipr-stepper .step-tab');
+  tabs.forEach((t,i)=>{t.classList.remove('active','done');if(i<iprCur)t.classList.add('done');if(i===iprCur)t.classList.add('active')});
+  document.getElementById('ipr-prog').style.width=(((iprCur+1)/(IPR_TOTAL+1))*100).toFixed(1)+'%';
+}
+function iprGo(n){if(n<=iprCur){iprCur=n;updateIPRStepper();showPanel('ipr',n)}}
+function iprPrev(){
+  if(iprCur>0){iprCur--;updateIPRStepper();showPanel('ipr',iprCur)}
+  if(iprCur===4){_iprFyOk=false;iprValidateFY()}
+}
+function iprNext(){
+  const V=id=>document.getElementById(id)?.value||'';
+  if(iprCur===0&&(!V('ipr_company')||V('ipr_costtype')!=='OPEX'||V('ipr_function')!=='Infra')){alert('Select Company. Cost Type must be OPEX and Function must be Infra.');return}
+  if(iprCur===1&&(!V('ipr_lineitemcat')||!V('ipr_desc'))){alert('Select Line Item and Category, and enter a Short Description.');return}
+  if(iprCur===2){const q=parseFloat(V('ipr_qty'))||0,r=parseFloat(V('ipr_rate'))||0;if(!q||!r||!V('ipr_units')){alert('Enter Units, Quantity, and Rate.');return}}
+  if(iprCur===3&&(!V('ipr_start')||!V('ipr_end'))){alert('Select Start Date and End Date.');return}
+  if(iprCur===3){iprCur=4;updateIPRStepper();showPanel('ipr',4);iprValidateFY();document.getElementById('ipr_delivery_disp').value=document.getElementById('ipr_delivery').value;return}
+  if(iprCur===4){if(!_iprFyOk){alert('Complete cross-FY validation — each FY allocation must match the PR value split and remain within available budget.');return}iprCur=5;updateIPRStepper();showPanel('ipr',5);return}
+  if(iprCur===5&&(!V('ipr_itemno')||!V('ipr_acctcat')||!V('ipr_itemcat')||!V('ipr_pgroup')||!V('ipr_dept')||!V('ipr_purchorg')||!V('ipr_matgroup')||!V('ipr_plant'))){alert('Fill all Additional Information fields.');return}
+  if(iprCur===6&&(!V('ipr_tax'))){alert('Select Tax Applicability.');return}
+  if(iprCur===8&&(!V('ipr_cc')||!V('ipr_gl')||!V('ipr_coarea'))){alert('Select Cost Centre, G/L Account, and CO Area.');return}
+  if(iprCur<IPR_TOTAL){iprCur++;updateIPRStepper();showPanel('ipr',iprCur)}
+}
+function iprCalc(){
+  const q=parseFloat(document.getElementById('ipr_qty').value)||0;
+  const r=parseFloat(document.getElementById('ipr_rate').value)||0;
+  document.getElementById('ipr_value').value=fmtINR(q*r);
+}
+function iprCalcDates(){
+  const ev=document.getElementById('ipr_end').value;
+  if(!ev)return;
+  const d=new Date(ev); d.setMonth(d.getMonth()+3);
+  document.getElementById('ipr_delivery').value=fmtDate(d);
+}
+function iprBudgetChanged(){
+  iprUpdateBudget();
+}
+function iprUpdateBudget(){
+  const li=(document.getElementById('ipr_lineitemcat')||{}).value||'';
+  const code=li?('OPX-INF-UTC-'+slug3(li)+'-01'):'';
+  document.getElementById('ipr_bcode').value=code;
+}
+async function iprHandleFile(e){
+  const f=e.target.files[0]; if(!f)return;
+  document.getElementById('ipr_fileOkTxt').textContent='Attached: '+f.name;
+  document.getElementById('ipr_fileOk').style.display='block';
+  document.getElementById('ipr_aiBox').style.display='block';
+  const ta=document.getElementById('ipr_aiText');
+  ta.value='Reading the document and generating the description…';
+  try{
+    const fd=new FormData(); fd.append('file',f);
+    const r=await fetch(API+'/pr/summarize',{method:'POST',headers:authHeaders(),body:fd});
+    if(r.status===401){ logout('Your session expired. Please sign in again.'); return; }
+    const d=await r.json();
+    if(!r.ok) throw new Error(d.error||'Could not generate the summary.');
+    ta.value=d.summary||'';
+    showAppMessage('Description generated from the document'+(d.source?' ('+d.source+')':'')+'. Review and edit before submitting.','ok');
+  }catch(err){ ta.value=''; showAppMessage('Could not read the document: '+err.message); }
+}
+// Cross-FY validation
+let _iprFyOk=false;
+function iprValidateFY(){
+  _iprFyOk=false;
+  const s=document.getElementById('ipr_start').value, e=document.getElementById('ipr_end').value;
+  const notice=document.getElementById('ipr-fy-notice');
+  const result=document.getElementById('ipr-fy-result');
+  const sameDiv=document.getElementById('ipr-fy-same');
+  const crossDiv=document.getElementById('ipr-fy-cross');
+  const btn=document.getElementById('ipr-fy-next');
+  if(!s||!e){notice.innerHTML='<strong>Error:</strong> Select start and end dates first.';notice.className='notice error';btn.disabled=true;return}
+  const sfy=fyForDate(s), efy=fyForDate(e);
+  const diffMonths=monthSpan(s,e);
+  result.style.display='block';
+  if(sfy===efy&&diffMonths<=12){
+    sameDiv.style.display='block'; crossDiv.style.display='none';
+    notice.innerHTML='<strong>Same FY.</strong> No cross-year allocation needed.';notice.className='notice ok';
+    _iprFyOk=true; btn.disabled=false;
+  } else {
+    sameDiv.style.display='none'; crossDiv.style.display='block';
+    notice.innerHTML='<strong>Cross-FY Detected.</strong> Allocate budget year-wise.';notice.className='notice warn';
+    btn.disabled=true;
+    if(document.querySelectorAll('#ipr-budget-years .fy-row').length===0){iprAddYear();iprAddYear()}
+    iprCheckBudgetTotal();
+  }
+}
+function iprAddYear(){
+  const wrap=document.getElementById('ipr-budget-years');
+  const i=wrap.children.length+1;
+  const row=document.createElement('div'); row.className='fy-row'; row.style.cssText='display:flex;gap:8px;align-items:center;margin-top:6px';
+  row.innerHTML='<select class="fy-select" style="flex:1;padding:6px 8px;border:1px solid var(--border);border-radius:var(--r);font-size:12px" onchange="iprCheckBudgetTotal()"><option value="">— FY —</option><option selected>FY 2025-26</option><option>FY 2026-27</option><option>FY 2027-28</option><option>FY 2028-29</option></select><input type="number" class="fy-amt" placeholder="Amount" style="flex:1;padding:6px 8px;border:1px solid var(--border);border-radius:var(--r);font-size:12px" oninput="iprCheckBudgetTotal()"/><button class="btn btn-ghost btn-sm" onclick="this.parentElement.remove();iprCheckBudgetTotal()" style="padding:4px 10px;font-size:14px">&times;</button>';
+  wrap.appendChild(row);
+  iprCheckBudgetTotal();
+}
+function iprFYAvailable(fy){
+  const base={'FY 2025-26':1050000,'FY 2026-27':1200000,'FY 2027-28':1500000,'FY 2028-29':1800000};
+  return base[fy]||0;
+}
+function iprCheckBudgetTotal(){
+  const rows=document.querySelectorAll('#ipr-budget-years .fy-row');
+  let total=0, ok=true, details=[];
+  rows.forEach(row=>{
+    const fy=row.querySelector('.fy-select')?.value||'';
+    const amt=parseFloat(row.querySelector('.fy-amt')?.value)||0;
+    const avail=iprFYAvailable(fy);
+    total+=amt;
+    if(!fy||amt<=0||amt>avail)ok=false;
+    if(fy)details.push(fy+' available '+fmtINR(avail));
+  });
+  const prVal=parseMoney(document.getElementById('ipr_value').value);
+  const summary=document.getElementById('ipr-budget-summary');
+  const btn=document.getElementById('ipr-fy-next');
+  if(total>0){
+    summary.style.display='block';
+    document.getElementById('ipr-total-alloc').textContent=total.toLocaleString('en-IN')+(details.length?' — '+details.join(' | '):'');
+    if(ok&&Math.abs(total-prVal)<0.01){_iprFyOk=true;btn.disabled=false}else{_iprFyOk=false;btn.disabled=true}
+  } else {summary.style.display='none';_iprFyOk=false;btn.disabled=true}
+}
+function iprBuildReview(){
+  const s=[
+    {t:'Basic Information',step:0,rows:[['Company',v('ipr_company')],['Financial Year',v('ipr_fy')],['Cost Type',v('ipr_costtype')],['Function',v('ipr_function')]]},
+    {t:'Line Item and Category',step:1,rows:[['Line Item and Category',v('ipr_lineitemcat')],['Budget Code',v('ipr_bcode')],['Description',v('ipr_desc')||'—']]},
+    {t:'PR Amount',step:2,rows:[['Units',v('ipr_units')],['Quantity',v('ipr_qty')],['Rate (₹)','₹ '+(Number(v('ipr_rate'))||0).toLocaleString('en-IN')],['PR Value',v('ipr_value')]]},
+    {t:'Validity',step:3,rows:[['Start Date',v('ipr_start')],['End Date',v('ipr_end')],['Delivery Date',v('ipr_delivery')]]},
+    {t:'Cross-FY Allocation',step:4,rows:[['Status',document.getElementById('ipr-fy-same').style.display==='block'?'Same FY — No allocation needed':'Year-wise allocated']]},
+    {t:'Additional Info',step:5,rows:[['Item No',v('ipr_itemno')],['Acct Assign Category',v('ipr_acctcat')],['Item Category',v('ipr_itemcat')],['Purchase Group',v('ipr_pgroup')],['Department',v('ipr_dept')],['Tracking No',v('ipr_tracking')||'—'],['Purchase Org',v('ipr_purchorg')],['Material Group',v('ipr_matgroup')],['Plant',v('ipr_plant')]]},
+    {t:'Delivery & Tax',step:6,rows:[['Delivery Date',v('ipr_delivery_disp')||v('ipr_delivery')],['Tax',v('ipr_tax')]]},
+    {t:'Scope of Work',step:7,rows:[['Document',(document.getElementById('ipr_sow')?.files[0]?.name)||'Not attached'],['Summary',(document.getElementById('ipr_aiText')?.value||'').substring(0,80)+'…']]},
+    {t:'Financial Details',step:8,rows:[['Cost Centre',v('ipr_cc')],['G/L Account',v('ipr_gl')],['CO Area',v('ipr_coarea')]]},
+  ];
+  document.getElementById('ipr_reviewBody').innerHTML=buildReviewHTML(s,'ipr');
+}
+async function iprSubmit(){
+  const allocations=[...document.querySelectorAll('#ipr-budget-years .fy-row')].map(row=>({financialYear:row.querySelector('.fy-select').value,amount:parseFloat(row.querySelector('.fy-amt').value)||0})).filter(row=>row.financialYear&&row.amount>0);
+  if(!allocations.length)allocations.push({financialYear:selectedFY('ipr'),amount:parseMoney(document.getElementById('ipr_value').value)});
+  try{
+    const pr=await api('/infra-pr',{method:'POST',body:JSON.stringify({requester:document.getElementById('userName').textContent,company:v('ipr_company'),financialYear:selectedFY('ipr'),function:v('ipr_function'),category:v('ipr_lineitemcat'),lineItem:v('ipr_lineitemcat'),budgetCode:v('ipr_bcode'),shortText:v('ipr_desc'),amount:parseMoney(document.getElementById('ipr_value').value),allocations})});
+    const submitted=await api('/pr/'+pr.id+'/submit',{method:'POST',body:JSON.stringify({actor:document.getElementById('userName').textContent})});
+    document.getElementById('ipr_numDisplay').textContent=submitted.number;
+    iprCur=IPR_TOTAL; updateIPRStepper(); showPanel('ipr',IPR_TOTAL);
+  }catch(error){}
+}
+
+// ── PR LOGIC ───────────────────────────────────────────────
+// ── PR master data — mirrored from PR-PO Process.pptx (PR flow, slides 23–32) ──
+const PR_COMPANIES=['UTCL','ICL','KIL'];
+const PR_FYS=['26-27','27-28','28-29','29-30','30-31','31-32','32-33'];
+const PR_FUNCTIONS=['Manufacturing','Marketing','ASG','Infosec','Infra','RMC','BPD','UTEC','CEM'];
+const PR_FUNC_CODE={Manufacturing:'MFG',Marketing:'MKT',ASG:'ASG',Infosec:'SEC',Infra:'INF',RMC:'RMC',BPD:'BPD',UTEC:'UTC',CEM:'CEM'};
+// Function → categories. The deck fully specifies only Manufacturing (slide 24).
+const PR_CATEGORIES={Manufacturing:['AMC','AMS','CR','Infra','Others']};
+const PR_CAT_CODE={AMC:'AMC',AMS:'AMS',CR:'CR',Infra:'INFRA',Others:'OTH'};
+// Function → Category → line items. Deck specifies only Manufacturing → AMC (slide 24).
+const PR_LINEITEMS={Manufacturing:{AMC:['CLIP','Cygnature','Land Tech Mgmt. - Land & Acquisition','LIS - Land Information System','Raksha Kavach','DFP - Data Foundation Platform','PTW - Permit to Work','Primavera','Risk-e-Thon','Ansys','PMI - Plant Maintenance & Inspection','PLC-Bypass (Signal Bypass)']}};
+const PR_ITEM_CODE={CLIP:'CLIP'};   // explicit codes per deck; others derived
+const PR_TAX=['PAN India Service','Restricted to Maharashtra'];                          // slide 30 Input 17
+const PR_CC_AUTO=['Manufacturing','Marketing','RMC','BPD','UTEC'];                       // slide 31: cost centre auto
+const PR_CC_DROPDOWN={ASG:['OTHERS','CLOUD','SAP','UKSC','COGNOS'],Infosec:['ANTIVIRUS','SECURITY'],Infra:['OTHERS','UKSC']}; // slide 31
+const PR_IO_FUNCTIONS=['Marketing','UTEC'];                                             // slide 32 Input 22
+const PR_IO_OPTIONS=[
+  'AMC of specific off-the-shelf applications softwares such as SAP, COGNOS, JDA, KONY, Informatica, etc',
+  'AMC of 3rd Party Developed Softwares for SFA, TFA, DCA, Speed, GIS, Eye On Wheel, ePOD, SMS Charges, Call Centre Charges, ABG Cement',
+  'Change Requests or Addition of New features / functionalities in existing off-the-shelf or 3rd Party Developed Software Applications',
+  'Annual Maintenance of Servers, Storage, etc used for implementing the Off-the-Shelf Application Software and 3rd Party Developed Applications',
+  'Activities supporting the Off-the-Shelf Applications or 3rd Party Applications such as Code Review, Penetration Testing, ISO Implementation',
+  'UTEC - Plant -6050 Cost Center- 231001-PC-231000'
+];
+let prAllocRows=[];
+function prItemCode(li){ if(PR_ITEM_CODE[li])return PR_ITEM_CODE[li]; return (String(li).split(/[-(]/)[0].replace(/[^A-Za-z0-9]/g,'').substring(0,4).toUpperCase())||'GEN'; }
+function prCodeFor(fn,cat,li){
+  if(!PR_FUNC_CODE[fn]||!cat||cat==='—'||cat===''||!li||li==='—'||li==='') return '';
+  return 'OPX-'+PR_FUNC_CODE[fn]+'-UTC-'+(PR_CAT_CODE[cat]||slug3(cat))+'-'+prItemCode(li)+'-01';
+}
+function prBudgetCode(){ return prCodeFor(v('pr_function'),v('pr_category'),v('pr_lineitem')); }
+// Budget figures come from the backend budget line (auto-created on demand); the form
+// shows illustrative defaults until the real line is fetched.
+function getPRBudget(fn,cat,li){ return {code:prCodeFor(fn,cat,li),allocated:2500000,utilized:1450000}; }
+// Populate the Function dropdown from the master, default to the first, then cascade.
+function prInitMasters(){
+  const f=document.getElementById('pr_function');
+  if(f && !f.options.length){ f.innerHTML=PR_FUNCTIONS.map((fn,i)=>'<option'+(i===0?' selected':'')+'>'+fn+'</option>').join(''); }
+  prPopulateCategories();
+}
+// Cascading dropdowns: Function → Category → Line Item (slides 23–24).
+function prPopulateCategories(){
+  const fn=document.getElementById('pr_function').value;
+  const sel=document.getElementById('pr_category');
+  const cats=PR_CATEGORIES[fn]||[];
+  sel.innerHTML=cats.length?cats.map((c,i)=>'<option'+(i===0?' selected':'')+'>'+c+'</option>').join(''):'<option value="">— Master data pending for '+fn+' —</option>';
+  prApplyCostCentreMode();
+  prPopulateLineItems();
+}
+function prPopulateLineItems(){
+  const fn=document.getElementById('pr_function').value;
+  const cat=document.getElementById('pr_category').value;
+  const sel=document.getElementById('pr_lineitem');
+  const items=(PR_LINEITEMS[fn]&&PR_LINEITEMS[fn][cat])||[];
+  sel.innerHTML=items.length?items.map((li,i)=>'<option'+(i===0?' selected':'')+'>'+li+'</option>').join(''):'<option value="">— Master data pending —</option>';
+  prBudgetChanged();
+}
+// Slide 31/32: cost centre auto for some functions, dropdown for ASG/Infosec/Infra;
+// Internal Order shown only for Marketing/UTEC; G/L + CO Area auto-populated by function.
+function prApplyCostCentreMode(){
+  const fn=document.getElementById('pr_function').value;
+  const auto=PR_CC_AUTO.includes(fn);
+  const drop=PR_CC_DROPDOWN[fn];
+  const ccAuto=document.getElementById('pr_cc_auto_wrap');
+  const ccDrop=document.getElementById('pr_cc_wrap');
+  if(ccAuto&&ccDrop){
+    if(drop){ ccDrop.style.display=''; ccAuto.style.display='none';
+      document.getElementById('pr_cc').innerHTML=drop.map((o,i)=>'<option'+(i===0?' selected':'')+'>'+o+'</option>').join('');
+    } else { ccDrop.style.display='none'; ccAuto.style.display='';
+      document.getElementById('pr_cc_auto').value=auto?('Auto-populated for '+fn):'Not applicable';
+    }
+  }
+  const ioWrap=document.getElementById('pr_io_wrap');
+  if(ioWrap){
+    if(PR_IO_FUNCTIONS.includes(fn)){ ioWrap.style.display='';
+      document.getElementById('pr_io').innerHTML=PR_IO_OPTIONS.map((o,i)=>'<option'+(i===0?' selected':'')+'>'+o+'</option>').join('');
+    } else ioWrap.style.display='none';
+  }
+  const gl=document.getElementById('pr_gl'), co=document.getElementById('pr_coarea');
+  if(gl) gl.value='730340'; if(co) co.value='GIL';   // slide 32 example values (auto by function)
+}
+function currentPRBudget(){
+  return getPRBudget(v('pr_function'),v('pr_category'),v('pr_lineitem'));
+}
+function prBudgetChanged(){
+  const b=currentPRBudget();
+  const avail=b.allocated-b.utilized;
+  const usedPct=b.allocated?Math.min(100,(b.utilized/b.allocated)*100):0;
+  document.getElementById('pr_bcode').value=b.code;
+  document.getElementById('pr_budgetNotice').innerHTML='<strong>Auto-fetched</strong> Budget for '+v('pr_function')+' &rarr; '+v('pr_category')+' &rarr; '+v('pr_lineitem')+' &mdash; '+v('pr_fy');
+  document.getElementById('pr_allocated_disp').textContent=fmtINR(b.allocated);
+  document.getElementById('pr_utilized_disp').textContent=fmtINR(b.utilized);
+  document.getElementById('pr_available_disp').textContent=fmtINR(avail);
+  document.getElementById('pr_budgetBar').style.width=usedPct.toFixed(0)+'%';
+  document.getElementById('pr_budgetPct').textContent=usedPct.toFixed(0)+'% utilized';
+  document.getElementById('pr_budgetTotal').textContent=fmtINR(b.allocated);
+  calcPR();
+}
+function validatePRBudget(){
+  const value=parseMoney(document.getElementById('pr_value').value);
+  return value>0&&value<=currentPRBudget().allocated-currentPRBudget().utilized;
+}
+function prApprovalRoute(amount){
+  if(amount>2500000)return {tag:'PENDING CDIO APPROVAL',pending:'Pending CDIO approval (> ₹25,00,000)',route:'Application Owner -> Governance Head -> Portfolio Lead -> CDIO -> SAP PR release'};
+  if(amount>250000)return {tag:'PENDING PORTFOLIO LEAD',pending:'Pending Portfolio Lead approval (₹2,50,001 - ₹25,00,000)',route:'Application Owner -> Governance Head -> Portfolio Lead -> SAP PR release'};
+  return {tag:'PENDING GOVERNANCE HEAD',pending:'Pending Governance Head / Function approval (≤ ₹2,50,000)',route:'Application Owner -> Governance Head / Function Approver -> SAP PR release'};
+}
+// Slide 33: approver names auto-populated from user mapping. Approver 1 (Business
+// Commercial Approval) applies only to Marketing / RMC / BPD functions.
+function prApprovers(fn){
+  const rows=[];
+  if(['Marketing','RMC','BPD'].includes(fn)) rows.push(['Approver 1','Business Commercial Approval']);
+  rows.push(['Approver 2','Governance Head / Respective person of the function']);
+  rows.push(['Approver 3','Portfolio Lead']);
+  rows.push(['Approver 4','CDIO']);
+  return rows;
+}
+function prToggleShared(val){
+  const yes=val==='yes';
+  document.getElementById('pr_allocBox').style.display=yes?'block':'none';
+  if(yes&&prAllocRows.length===0)prAddAllocRow();
+  prCheckAllocTotal();
+}
+function prAddAllocRow(){
+  const id=Date.now()+Math.floor(Math.random()*1000);
+  prAllocRows.push(id);
+  renderPRAllocRows();
+}
+function prRemoveAllocRow(id){
+  prAllocRows=prAllocRows.filter(r=>r!==id);
+  renderPRAllocRows();
+}
+function renderPRAllocRows(){
+  const tbody=document.getElementById('prAllocBody');
+  tbody.innerHTML=prAllocRows.map(id=>`
+    <tr>
+      <td><select id="pr_alloc_fn_${id}" onchange="prUpdateAllocRow(${id})">${PR_FUNCTIONS.map((fn,i)=>'<option'+(i===0?' selected':'')+'>'+fn+'</option>').join('')}</select></td>
+      <td><select id="pr_alloc_cat_${id}" onchange="prUpdateAllocRow(${id})">${(PR_CATEGORIES['Manufacturing']||[]).map((c,i)=>'<option'+(i===0?' selected':'')+'>'+c+'</option>').join('')}</select></td>
+      <td><select id="pr_alloc_li_${id}" onchange="prUpdateAllocRow(${id})">${((PR_LINEITEMS['Manufacturing']&&PR_LINEITEMS['Manufacturing']['AMC'])||[]).map((li,i)=>'<option'+(i===0?' selected':'')+'>'+li+'</option>').join('')}</select></td>
+      <td><input type="text" id="pr_alloc_alloc_${id}" readonly placeholder="Auto"/></td>
+      <td><input type="text" id="pr_alloc_util_${id}" readonly placeholder="Auto"/></td>
+      <td><input type="text" id="pr_alloc_avail_${id}" readonly placeholder="Auto"/></td>
+      <td><input type="text" id="pr_alloc_code_${id}" readonly placeholder="Auto"/></td>
+      <td><input type="number" id="pr_alloc_pct_${id}" min="0" max="100" placeholder="%" oninput="prUpdateAllocRow(${id})"/></td>
+      <td><input type="text" id="pr_alloc_amt_${id}" readonly placeholder="Auto"/></td>
+      <td><button class="ms-del" onclick="prRemoveAllocRow(${id})">&#10005;</button></td>
+    </tr>`).join('');
+  prAllocRows.forEach(prUpdateAllocRow);
+}
+function prUpdateAllocRow(id){
+  const fn=v('pr_alloc_fn_'+id), cat=v('pr_alloc_cat_'+id), li=v('pr_alloc_li_'+id);
+  const pct=parseFloat(v('pr_alloc_pct_'+id))||0;
+  const amount=parseMoney(document.getElementById('pr_value').value)*pct/100;
+  const b=getPRBudget(fn,cat,li);
+  document.getElementById('pr_alloc_code_'+id).value=b.code;
+  document.getElementById('pr_alloc_alloc_'+id).value=fmtINR(b.allocated);
+  document.getElementById('pr_alloc_util_'+id).value=fmtINR(b.utilized);
+  document.getElementById('pr_alloc_avail_'+id).value=fmtINR(b.allocated-b.utilized);
+  document.getElementById('pr_alloc_amt_'+id).value=fmtINR(amount);
+  prCheckAllocTotal();
+}
+function prAllocationIsValid(){
+  if(!document.getElementById('pr_shared_yes')?.checked)return true;
+  if(prAllocRows.length===0)return false;
+  let total=0, ok=true;
+  prAllocRows.forEach(id=>{
+    const pct=parseFloat(v('pr_alloc_pct_'+id))||0;
+    const amount=parseMoney(document.getElementById('pr_alloc_amt_'+id).value);
+    const b=getPRBudget(v('pr_alloc_fn_'+id),v('pr_alloc_cat_'+id),v('pr_alloc_li_'+id));
+    total+=pct;
+    if(pct<=0||amount>b.allocated-b.utilized)ok=false;
+  });
+  return ok&&Math.abs(total-100)<0.01;
+}
+function prCheckAllocTotal(){
+  const el=document.getElementById('prAllocTotal');
+  if(!el)return;
+  let total=0;
+  prAllocRows.forEach(id=>{total+=parseFloat(v('pr_alloc_pct_'+id))||0});
+  el.textContent='Total: '+total.toFixed(1)+'%';
+  el.className='ms-total '+(prAllocationIsValid()?'ok':'err');
+}
+function calcPR(){
+  const q=parseFloat(document.getElementById('pr_qty').value)||0;
+  const r=parseFloat(document.getElementById('pr_rate').value)||0;
+  const val=q*r;
+  document.getElementById('pr_value').value=fmtINR(val);
+  const avail=currentPRBudget().allocated-currentPRBudget().utilized;
+  const over=val>avail&&val>0;
+  document.getElementById('pr_budgetErr').style.display=over?'block':'none';
+  document.getElementById('prBtnS3').disabled=over;
+  document.getElementById('pr_budgetStatus').className='notice '+(over?'error':'ok');
+  document.getElementById('pr_budgetStatus').innerHTML=over?'<strong>Budget Exceeded.</strong> Reduce amount or raise a budget revision.':'<strong>Within budget.</strong> You may proceed to enter PR amount.';
+  prAllocRows.forEach(prUpdateAllocRow);
+}
+function calcPRDates(){
+  const ev=document.getElementById('pr_end').value;
+  if(!ev)return;
+  const d=new Date(ev); d.setMonth(d.getMonth()+3);
+  document.getElementById('pr_delivery').value=fmtDate(d);
+}
+async function prHandleFile(e){
+  const f=e.target.files[0]; if(!f)return;
+  document.getElementById('pr_fileOkTxt').textContent='Attached: '+f.name;
+  document.getElementById('pr_fileOk').style.display='block';
+  document.getElementById('pr_skipNote').style.display='none';
+  document.getElementById('pr_aiBox').style.display='block';
+  const ta=document.getElementById('pr_aiText');
+  ta.value='Reading the document and generating the description…';
+  try{
+    const fd=new FormData(); fd.append('file',f);
+    const r=await fetch(API+'/pr/summarize',{method:'POST',headers:authHeaders(),body:fd});
+    if(r.status===401){ logout('Your session expired. Please sign in again.'); return; }
+    const d=await r.json();
+    if(!r.ok) throw new Error(d.error||'Could not generate the summary.');
+    ta.value=d.summary||'';
+    showAppMessage('Description generated from the document'+(d.source?' ('+d.source+')':'')+'. Review and edit before submitting.','ok');
+  }catch(err){ ta.value=''; showAppMessage('Could not read the document: '+err.message); }
+}
+function prBuildReview(){
+  const b=currentPRBudget();
+  const route=prApprovalRoute(parseMoney(document.getElementById('pr_value').value));
+  const s=[
+    {t:'Basic Information',step:0,rows:[['Company',v('pr_company')],['Financial Year',v('pr_fy')],['Cost Type',v('pr_costtype')],['Function',v('pr_function')],['Category',v('pr_category')],['Line Item',v('pr_lineitem')],['Budget Code',v('pr_bcode')],['Short Text',v('pr_shorttext')]]},
+    {t:'Budget',step:1,rows:[['Allocated',fmtINR(b.allocated)],['Utilized',fmtINR(b.utilized)],['Available',fmtINR(b.allocated-b.utilized)]]},
+    {t:'PR Amount',step:2,rows:[['Quantity',v('pr_qty')],['Rate (₹)','₹ '+(Number(v('pr_rate'))||0).toLocaleString('en-IN')],['PR Value',v('pr_value')]]},
+    {t:'Approval Routing',step:2,rows:[['Current Route',route.route],['Pending With',route.pending]]},
+    {t:'Approvers (auto-populated from user mapping)',step:2,rows:prApprovers(v('pr_function'))},
+    {t:'Validity',step:3,rows:[['Start Date',v('pr_start')],['End Date',v('pr_end')],['Delivery Date',v('pr_delivery')]]},
+    {t:'SAP Item Details',step:4,rows:[['Item No.',v('pr_itemno')],['Acct Assignment',v('pr_acctcat')],['Item Category',v('pr_itemcat')],['Purchase Group',v('pr_pgroup')],['Department',v('pr_dept')],['Tracking No.',v('pr_trackno')],['Purchase Org.',v('pr_purchorg')],['Material Group',v('pr_matgroup')],['Plant',v('pr_plant')]]},
+    {t:'Additional',step:4,rows:[['Tax Applicability',v('pr_tax')],['Cost Centre',document.getElementById('pr_cc_auto_wrap')&&document.getElementById('pr_cc_auto_wrap').style.display!=='none'?v('pr_cc_auto'):v('pr_cc')]].concat(PR_IO_FUNCTIONS.includes(v('pr_function'))?[['Internal Order No.',v('pr_io')]]:[]).concat([['G/L Account',v('pr_gl')],['CO Area',v('pr_coarea')],['Remarks',v('pr_remarks')||'None']])},
+    {t:'Scope of Work',step:5,rows:[['Document',(document.getElementById('pr_sow')?.files[0]?.name)||'Not attached'],['Summary',(document.getElementById('pr_aiText')?.value||'').substring(0,80)+'…']]},
+  ];
+  document.getElementById('pr_reviewBody').innerHTML=buildReviewHTML(s,'pr');
+}
+async function prSubmit(){
+  const amount=parseMoney(document.getElementById('pr_value').value);
+  const route=prApprovalRoute(amount);
+  try{
+    const pr=await api('/pr',{method:'POST',body:JSON.stringify({requester:document.getElementById('userName').textContent,company:v('pr_company'),financialYear:selectedFY('pr'),function:v('pr_function'),category:v('pr_category'),lineItem:v('pr_lineitem'),budgetCode:v('pr_bcode'),shortText:v('pr_shorttext'),amount})});
+    const submitted=await api('/pr/'+pr.id+'/submit',{method:'POST',body:JSON.stringify({actor:document.getElementById('userName').textContent})});
+    document.getElementById('pr_numDisplay').textContent=submitted.number;
+    document.getElementById('pr_statusTag').textContent=route.tag;
+    document.getElementById('pr_routeText').textContent=route.route;
+    document.getElementById('pr_pendingWith').textContent=route.pending;
+    prCur=PR_TOTAL; updatePRStepper(); showPanel('pr',PR_TOTAL);
+  }catch(error){}
+}
+
+// ── PO LOGIC ───────────────────────────────────────────────
+// Vendor master (auto-populated Code / Address / Tax code per PPT PO Input 2).
+const vendorMaster={
+  IBM:{code:'V-1001',addr:'IBM India Pvt. Ltd., Embassy Golf Links, Bangalore 560071',tax:'29AAACI4403R1ZL'},
+  MICROSOFT:{code:'V-1002',addr:'Microsoft India, DLF Cyber City, Gurugram 122002',tax:'06AAACM1234R1ZP'},
+  SAP:{code:'V-1003',addr:'SAP Labs India, Manyata Tech Park, Bangalore 560045',tax:'29AAKCS1659Q1ZX'},
+  BMCSPL:{code:'V-1004',addr:'BMCSPL, Aditya Birla Centre, Worli, Mumbai 400030',tax:'27AABCB1234M1Z9'},
+  ORACLE:{code:'V-1005',addr:'Oracle India Pvt. Ltd., Off Western Express Hwy, Mumbai 400063',tax:'27AAACO1412J1Z6'},
+  AUTOPLANT:{code:'V-1006',addr:'AutoPlant Systems India, Andheri East, Mumbai 400059',tax:'27AAFCA5678K1ZR'},
+  TRIDIAGNOL:{code:'V-1007',addr:'Tridiagnol Pvt. Ltd., Hinjewadi Phase 2, Pune 411057',tax:'27AACCT9012L1ZB'},
+};
+function fillVendor(){
+  const key=document.getElementById('po_vendor').value;
+  const m=vendorMaster[key]||{code:'',addr:'',tax:''};
+  document.getElementById('po_vcode').value=m.code;
+  document.getElementById('po_vaddr').value=m.addr;
+  document.getElementById('po_vtax').value=m.tax;
+  document.getElementById('po_vendorWarn').style.display=key==='NOT_IN_LIST'?'block':'none';
+}
+function calcPO(){
+  const q=parseFloat(document.getElementById('po_qty').value)||0;
+  const r=parseFloat(document.getElementById('po_rate').value)||0;
+  const val=q*r;
+  document.getElementById('po_value').value=fmtINR(val);
+  const pr=selectedPOPR();
+  const over=!!pr&&val>pr.remaining_po_amount&&val>0;
+  document.getElementById('po_valErr').style.display=over?'block':'none';
+  document.getElementById('poBtnS2').disabled=over;
+  msRows.forEach(calcMSAmount);
+}
+function calcPODates(){
+  const ev=document.getElementById('po_end').value; if(!ev)return;
+  const d=new Date(ev); d.setMonth(d.getMonth()+3);
+  document.getElementById('po_delivery').value=fmtDate(d);
+}
+
+// Inco location map (slide: for FOR — services — location auto-fills as "Site").
+const incoLoc={CIF:'JNPT, Nhava Sheva',DAP:'Site',FOB:'JNPT, Nhava Sheva',FOR:'Site'};
+function fillInco(){
+  const k=document.getElementById('po_inco').value;
+  document.getElementById('po_incoloc').value=incoLoc[k]||'';
+}
+fillInco();
+fillVendor();
+
+// Payment Terms (Input 5): Milestone table shows only when "Milestone Based".
+function poPaymentTermsChanged(){
+  const ms=document.getElementById('po_payterms').value==='Milestone Based';
+  document.getElementById('payMS').style.display=ms?'block':'none';
+  if(ms&&msRows.length===0){addMilestone();addMilestone();}
+}
+
+// Milestones
+let msRows=[];
+function addMilestone(){
+  const id=Date.now();
+  msRows.push(id);
+  renderMilestones();
+}
+function removeMilestone(id){
+  msRows=msRows.filter(r=>r!==id);
+  renderMilestones();
+}
+function renderMilestones(){
+  const tbody=document.getElementById('msTbody');
+  tbody.innerHTML=msRows.map(id=>`
+    <tr>
+      <td><input type="text" placeholder="e.g. Advance Payment" id="ms_name_${id}"/></td>
+      <td><input type="number" placeholder="e.g. 30" min="0" max="100" id="ms_pct_${id}" oninput="calcMSAmount(${id})"/></td>
+      <td><input type="text" id="ms_amt_${id}" readonly placeholder="Auto"/></td>
+      <td><button class="ms-del" onclick="removeMilestone(${id})">&#10005;</button></td>
+    </tr>`).join('');
+  msRows.forEach(calcMSAmount);
+  updateMSTotal();
+}
+function calcMSAmount(id){
+  const pct=parseFloat(document.getElementById('ms_pct_'+id).value)||0;
+  const poVal=parseFloat((document.getElementById('po_value').value||'0').replace(/[^\d.]/g,''))||0;
+  const amt=(pct/100)*poVal;
+  document.getElementById('ms_amt_'+id).value=fmtINR(amt);
+  updateMSTotal();
+}
+function updateMSTotal(){
+  let total=0;
+  msRows.forEach(id=>{
+    total+=(parseFloat(document.getElementById('ms_pct_'+id)?.value)||0);
+  });
+  const el=document.getElementById('msTotalWrap');
+  if(!el)return;
+  el.textContent=`Total: ${total.toFixed(1)}%`;
+  el.className='ms-total '+(Math.abs(total-100)<0.1?'ok':'err');
+}
+function milestonesAreValid(){
+  if(msRows.length===0)return false;
+  let total=0, ok=true;
+  msRows.forEach(id=>{
+    const name=v('ms_name_'+id).trim();
+    const pct=parseFloat(v('ms_pct_'+id))||0;
+    total+=pct;
+    if(!name||pct<=0)ok=false;
+  });
+  return ok&&Math.abs(total-100)<0.1;
+}
+
+// Negotiation
+let negLevels=[];
+const negLevelOpts=['First Level','Second Level','Third Level','Final Level'];
+function addNegLevel(){
+  negLevels.push(Date.now());
+  renderNegLevels();
+}
+function removeNegLevel(id){
+  negLevels=negLevels.filter(r=>r!==id);
+  renderNegLevels();
+}
+function renderNegLevels(){
+  const wrap=document.getElementById('negLevels');
+  wrap.innerHTML=negLevels.map((id,i)=>`
+    <div style="border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px;overflow:hidden">
+      <div style="background:var(--surf2);border-bottom:1px solid var(--border);padding:7px 12px;font-size:11px;font-weight:700;color:var(--text2);display:flex;justify-content:space-between;align-items:center">
+        <span>${negLevelOpts[i]||'Level '+(i+1)}</span>
+        <button class="ms-del" onclick="removeNegLevel(${id})">&#10005;</button>
+      </div>
+      <div style="padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="field"><label>Negotiating Party</label><select id="neg_party_${id}"><option selected>Governance Team</option><option>Self</option><option>CPC</option><option>Commercial</option></select></div>
+        <div class="field"><label>Negotiation Remarks</label><input type="text" id="neg_remarks_${id}" placeholder="Key outcomes or notes"/></div>
+      </div>
+    </div>`).join('');
+}
+function toggleNeg(val){
+  document.getElementById('negYesBranch').style.display=val==='yes'?'block':'none';
+  document.getElementById('negNoBranch').style.display=val==='no'?'block':'none';
+}
+function toggleRateCard(){
+  const val=document.getElementById('neg_status').value;
+  document.getElementById('rateCardBranch').style.display=val==='ratecard'?'block':'none';
+}
+function negHandleFiles(e){
+  const wrap=document.getElementById('negFilesWrap');
+  Array.from(e.target.files).forEach(f=>{
+    const chip=document.createElement('div');
+    chip.className='file-chip';
+    chip.textContent=f.name;
+    wrap.appendChild(chip);
+  });
+}
+
+function poBuildReview(){
+  const negDone=document.getElementById('neg_yes').checked;
+  const s=[
+    {t:'Vendor',step:0,rows:[['Vendor Name',v('po_vendor')],['Vendor Code',v('po_vcode')],['Address',v('po_vaddr')],['GSTIN',v('po_vtax')]]},
+    {t:'PO Amount',step:1,rows:[['Units',v('po_units')],['Quantity',v('po_qty')],['Rate (₹)','₹ '+(Number(v('po_rate'))||0).toLocaleString('en-IN')],['PO Value',v('po_value')]]},
+    {t:'Payment Terms',step:2,rows:[['Payment Terms',v('po_payterms')]].concat(v('po_payterms')==='Milestone Based'?[['Milestones','See milestone table']]:[])},
+    {t:'Validity & Delivery',step:3,rows:[['Start Date',v('po_start')],['End Date',v('po_end')],['Delivery Date',v('po_delivery')]]},
+    {t:'Inco Terms',step:4,rows:[['Inco Term',v('po_inco')],['Delivery Location',v('po_incoloc')],['Payment Terms',v('po_payterms2')]]},
+    {t:'Negotiation',step:5,rows:[['Negotiation Done',negDone?'Yes':'No'],[negDone?'Negotiator':'Status',negDone?v('neg_person'):v('neg_status')],[negDone?'Remarks':'Rate Card Company',negDone?v('neg_remarks'):v('neg_ratecompany')]]},
+    {t:'PO Information',step:6,rows:[['PO Category','Software & Licenses — OPEX'],['Purchase Group','PG-IT-001'],['Purchase Org.','ACME-INDIA-PORG'],['Plant','BLR1 — Bangalore HQ']]},
+  ];
+  document.getElementById('po_reviewBody').innerHTML=buildReviewHTML(s,'po');
+}
+async function poSubmit(){
+  const pr=selectedPOPR();
+  if(!pr)return alert('Select an approved PR before submitting the PO.');
+  const milestones=msRows.map(id=>({name:v('ms_name_'+id),percentage:parseFloat(v('ms_pct_'+id))||0,amount:parseMoney(v('ms_amt_'+id))}));
+  const paymentTerms=v('po_payterms')+' · '+v('po_payterms2');
+  const negotiationDetails=document.getElementById('neg_yes').checked?('Negotiated by '+v('neg_person')+' ('+v('neg_remarks')+')'):v('neg_status');
+  try{
+    const po=await api('/po',{method:'POST',body:JSON.stringify({purchaseRequestId:pr.id,vendor:document.getElementById('po_vendor').selectedOptions[0].text,amount:parseMoney(v('po_value')),paymentTerms,negotiationDetails,milestones})});
+    document.getElementById('po_numDisplay').textContent=po.number;
+    poCur=PO_TOTAL; updatePOStepper(); showPanel('po',PO_TOTAL);
+  }catch(error){}
+}
+
+// ── INVOICE BUDGET MASTER (Non-PO Invoice — PPT slides 53-55) ──
+// Function → Category → Line Item → {code, allocated, utilized}. The deck fully
+// specifies only ASG; category/line-item lists + example code OPX-ASG-UTC-BKUP-DTC-00.
+const INV_ASG_CATEGORIES=['Public Cloud','Services','Data Centre','Divide Into - Public Cloud/Services','DataPulse','MicroSegmentation','Better self service. Reduction in development CR efforts','Migration to Tableau Pulse','ML & Gen AI','Modernization to SaaS offering','Landing Zone and connectivity between DC and Hyperscaler','Training and Development'];
+const INV_ASG_LINEITEMS=['Backup','Express route','Internet Bandwidth','Protection suite security service for server/switches','Public cloud gateway','Server Management (730 servers)','SMTP mail server cost','Storage management','Switching/ ports'];
+const invItemCode=li=>({'Backup':'BKUP'}[li]||String(li).replace(/[^A-Za-z0-9]/g,'').substring(0,4).toUpperCase());
+const invCatCode=c=>({'Data Centre':'DTC'}[c]||String(c).replace(/[^A-Za-z0-9]/g,'').substring(0,3).toUpperCase());
+function buildAsgInvoiceMaster(){
+  const asg={};
+  INV_ASG_CATEGORIES.forEach(cat=>{
+    asg[cat]={};
+    INV_ASG_LINEITEMS.forEach(li=>{
+      asg[cat][li]={code:'OPX-ASG-UTC-'+invItemCode(li)+'-'+invCatCode(cat)+'-00',allocated:2500000,utilized:1000000};
+    });
+  });
+  return asg;
+}
+const invBudgetData={ASG:buildAsgInvoiceMaster()};
+function getInvBudget(){return JSON.parse(JSON.stringify(invBudgetData))}
+let invBudgetCache=null;
+function loadInvBudget(){return invBudgetCache||getInvBudget()}
+async function refreshInvBudget(){
+  invBudgetCache=await api('/invoice/budget-master?financialYear='+encodeURIComponent(selectedFY('inv')));
+  return invBudgetCache;
+}
+function fmtINR(n){const val=Number(n)||0;return '₹ '+val.toLocaleString('en-IN',{minimumFractionDigits:2})}
+
+// ── INV LOGIC ───────────────────────────────────────────────
+function invPopulateBudgetCats(){
+  const b=loadInvBudget();
+  const fn=document.getElementById('inv_function').value;
+  const sel=document.getElementById('inv_category');
+  sel.innerHTML='<option value="">— Select Category —</option>';
+  if(fn&&b[fn])Object.keys(b[fn]).forEach(k=>{sel.innerHTML+='<option value="'+k.replace(/'/g,"\\'")+'">'+k+'</option>'});
+  document.getElementById('inv_lineitem').innerHTML='<option value="">— Select Line Item —</option>';
+  document.getElementById('inv_bcode').value='';
+  // Pre-select the first category (default) so the form opens ready-to-use; still changeable.
+  if(fn&&b[fn]&&Object.keys(b[fn]).length){ sel.value=Object.keys(b[fn])[0]; invBudgetChanged(); return; }
+  invUpdateBudgetDisplay();
+}
+function invBudgetChanged(){
+  const fn=document.getElementById('inv_function').value;
+  const cat=document.getElementById('inv_category').value;
+  const b=loadInvBudget();
+  const liSel=document.getElementById('inv_lineitem');
+  liSel.innerHTML='<option value="">— Select Line Item —</option>';
+  if(!fn||!cat||!b[fn]||!b[fn][cat]){document.getElementById('inv_bcode').value='';return}
+  Object.keys(b[fn][cat]).forEach(k=>{liSel.innerHTML+='<option value="'+k.replace(/'/g,"\\'")+'">'+k+'</option>'});
+  // Pre-select the first line item (default); user can change it.
+  if(Object.keys(b[fn][cat]).length) liSel.value=Object.keys(b[fn][cat])[0];
+  invUpdateBudgetDisplay();
+}
+function invUpdateBudgetDisplay(){
+  const fn=document.getElementById('inv_function').value;
+  const cat=document.getElementById('inv_category').value;
+  const li=document.getElementById('inv_lineitem').value;
+  const b=loadInvBudget();
+  if(fn&&cat&&li&&b[fn]&&b[fn][cat]&&b[fn][cat][li]){
+    document.getElementById('inv_bcode').value=b[fn][cat][li].code;
+    document.getElementById('inv_allocated_disp').textContent=fmtINR(b[fn][cat][li].allocated);
+    document.getElementById('inv_utilized_disp').textContent=fmtINR(b[fn][cat][li].utilized);
+    document.getElementById('inv_available_disp').textContent=fmtINR(b[fn][cat][li].allocated-b[fn][cat][li].utilized);
+  } else {
+    document.getElementById('inv_bcode').value='';
+    document.getElementById('inv_allocated_disp').textContent='—';
+    document.getElementById('inv_utilized_disp').textContent='—';
+    document.getElementById('inv_available_disp').textContent='—';
+  }
+}
+
+function invBuildReview(){
+  const fn=document.getElementById('inv_function').value;
+  const cat=document.getElementById('inv_category').value;
+  const li=document.getElementById('inv_lineitem').value;
+  const b=loadInvBudget();
+  let alloc='—',used='—',avail='—';
+  if(b[fn]&&b[fn][cat]&&b[fn][cat][li]){alloc=fmtINR(b[fn][cat][li].allocated);used=fmtINR(b[fn][cat][li].utilized);avail=fmtINR(b[fn][cat][li].allocated-b[fn][cat][li].utilized)}
+  const s=[
+    {t:'Basic Information',step:0,rows:[['Vendor',v('inv_vendor')],['Financial Year',v('inv_fy')],['Cost Type',v('inv_costtype')],['Function',v('inv_function')]]},
+    {t:'Budget Information',step:1,rows:[['Category',cat],['Line Item',li],['Budget Code',document.getElementById('inv_bcode').value]]},
+    {t:'Description & Budget',step:2,rows:[['Description',v('inv_desc')],['Allocated',alloc],['Utilized',used],['Available',avail],['Service Entry No.',v('inv_ser')]]},
+    {t:'Invoice Details',step:3,rows:[['Invoice No.',v('inv_number')],['Amount',fmtINR(v('inv_amount'))],['Service Period',v('inv_svc_from')+' to '+v('inv_svc_to')],['Invoice Date',v('inv_date')]]},
+  ];
+  document.getElementById('inv_reviewBody').innerHTML=buildReviewHTML(s,'inv');
+}
+
+// ── SHARED REVIEW BUILDER ──────────────────────────────────
+async function invSubmit(){
+  const fn=document.getElementById('inv_function').value;
+  const cat=document.getElementById('inv_category').value;
+  const li=document.getElementById('inv_lineitem').value;
+  const amt=parseFloat(document.getElementById('inv_amount').value)||0;
+  try{
+    const invoice=await api('/invoice',{method:'POST',body:JSON.stringify({
+      vendor:document.getElementById('inv_vendor').value.trim(),
+      financialYear:selectedFY('inv'),
+      costType:document.getElementById('inv_costtype').value,
+      function:fn,
+      category:cat,
+      lineItem:li,
+      budgetCode:document.getElementById('inv_bcode').value,
+      description:document.getElementById('inv_desc').value,
+      serviceEntryNumber:document.getElementById('inv_ser').value,
+      invoiceNumber:document.getElementById('inv_number').value.trim().toUpperCase(),
+      amount:amt,
+      servicePeriodFrom:document.getElementById('inv_svc_from').value,
+      servicePeriodTo:document.getElementById('inv_svc_to').value,
+      invoiceDate:document.getElementById('inv_date').value
+    })});
+    document.getElementById('inv_numDisplay').textContent=invoice.number;
+    await refreshInvBudget();
+    invCur=INV_TOTAL; updateINVStepper(); showPanel('inv',INV_TOTAL);
+  }catch(error){}
+}
+
+function buildReviewHTML(sections,prefix){
+  const goMap={po:'poGo',pr:'prGo',inv:'invGo',ipr:'iprGo'};
+  const goFn=goMap[prefix]||'prGo';
+  return sections.map(s=>`
+    <div class="review-block">
+      <div class="review-block-head"><h4>${s.t}</h4><button class="review-edit" onclick="${goFn}(${s.step})">Edit</button></div>
+      <dl class="review-dl">${s.rows.map(([k,vv])=>`<dt>${k}</dt><dd>${vv||'—'}</dd>`).join('')}</dl>
+    </div>`).join('');
+}
+</script>
+</body>
+</html>

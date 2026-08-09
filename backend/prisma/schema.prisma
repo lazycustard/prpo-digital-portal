@@ -1,0 +1,89 @@
+// RBAC schema for the PR-PO portal. Manages ONLY auth/roles/permissions —
+// the existing procurement tables stay on raw `pg` (see ../server.js).
+// Modelled on PR-PO Process.pptx (Access Control Matrix, slide 76).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  // Separate env var pointing at the `rbac` schema, so Prisma only manages the
+  // RBAC tables and never touches the procurement tables in `public`.
+  url      = env("PRISMA_DATABASE_URL")
+}
+
+// Data visibility a role has over PR/PO/invoice rows.
+enum Scope {
+  own              // only items the user raised (Application Owner)
+  portfolio        // everything in the user's portfolio (Portfolio Lead)
+  enterprise       // all data, edit rights (Governance Team — super admin)
+  enterprise_view  // all data, read-only (CDIO)
+}
+
+model Role {
+  id    Int    @id @default(autoincrement())
+  key   String @unique              // application_owner | portfolio_lead | governance_team | cdio
+  name  String
+  scope Scope
+
+  // Approval bands (rupees). min is EXCLUSIVE, max is INCLUSIVE; null max = unlimited,
+  // null min = no lower bound. A role may approve amount A when
+  //   (min == null || A > min) && (max == null || A <= max).
+  prApproveMinExcl  Int?
+  prApproveMaxIncl  Int?
+  invApproveMinExcl Int?
+  invApproveMaxIncl Int?
+
+  users       User[]
+  permissions RolePermission[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id          Int    @id @default(autoincrement())
+  key         String @unique        // e.g. pr:create, pr:approve, governance:view
+  description String
+
+  roles RolePermission[]
+
+  @@map("permissions")
+}
+
+// Many-to-many join: which permissions each role has.
+model RolePermission {
+  roleId       Int
+  permissionId Int
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model Portfolio {
+  id    Int    @id @default(autoincrement())
+  key   String @unique              // infrastructure | marketing | asg | infosec | manufacturing
+  name  String
+
+  users User[]
+
+  @@map("portfolios")
+}
+
+model User {
+  id           Int     @id @default(autoincrement())
+  name         String
+  email        String  @unique
+  passwordHash String  @map("password_hash")
+  roleId       Int     @map("role_id")
+  portfolioId  Int?    @map("portfolio_id")   // null for enterprise-scoped roles (GT/CDIO)
+  active       Boolean @default(true)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  role      Role       @relation(fields: [roleId], references: [id])
+  portfolio Portfolio? @relation(fields: [portfolioId], references: [id])
+
+  @@map("users")
+}
