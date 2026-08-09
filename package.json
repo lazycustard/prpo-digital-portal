@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node backend/server.js",
     "postinstall": "prisma generate --schema=backend/prisma/schema.prisma",
-    "db:setup": "psql \"$DATABASE_URL\" -f backend/schema.sql && prisma db push --schema=backend/prisma/schema.prisma && node backend/prisma/seed.js && psql \"$DATABASE_URL\" -f backend/add_ownership.sql",
+    "db:setup": "node backend/dbSetup.js",
     "test": "node --test"
   },
   "dependencies": {
