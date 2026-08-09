@@ -4,6 +4,11 @@
 // $1..$n queries via the pool/transaction client in ./db.js.
 const path = require('path');
 const express = require('express');
+// Patches Express so a rejected promise in ANY async route handler (in this
+// file or any router) is forwarded to the error-handling middleware below,
+// instead of silently hanging the request forever (which surfaces to the
+// client as a gateway timeout / 502 with no error message at all).
+require('express-async-errors');
 const { pool, transaction } = require('./db');
 const exportRouter = require('./export');
 const authRouter = require('./auth');
@@ -418,4 +423,12 @@ app.get('/api/governance/dashboard', authenticate, authorize('governance:view'),
 // Serve the existing static frontend (pr_portal.html etc.) from the project root.
 app.use(express.static(path.join(__dirname, '..')));
 app.get('/', (req, res) => res.redirect('/pr_portal.html'));
+
+// Catch-all error handler — always returns JSON instead of leaving a request
+// hanging (which upstream proxies eventually turn into an opaque 502).
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).json({ error: 'Something went wrong on the server. Please try again.' });
+});
+
 app.listen(process.env.PORT || 3001, () => console.log(`Procurement backend (PostgreSQL) running at http://localhost:${process.env.PORT || 3001}`));
